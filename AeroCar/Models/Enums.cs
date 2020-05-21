@@ -15,8 +15,25 @@ namespace AeroCar.Models
 
     public enum UserStatus
     {
-        InProcess = 0,
-        Activated = 1,
-        Declined = 2,
+        InProcess,
+        Activated,
+        Declined,
+    }
+
+    public enum StarRating
+    {
+        One,
+        Two,
+        Three,
+        Four,
+        Five
+    }
+
+    public enum CarType
+    {
+        HatchBack,
+        Sedan,
+        Coupe,
+        SUV
     }
 }
