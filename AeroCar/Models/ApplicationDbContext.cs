@@ -8,22 +8,16 @@ using System.Threading.Tasks;
 
 namespace AeroCar.Models
 {
-    public class ApplicationDbContext : IdentityDbContext
+    public class ApplicationDbContext : IdentityDbContext<RegularUser>
     {
         public ApplicationDbContext(DbContextOptions options) : base(options)
         {
                 
         }
 
-        public ApplicationDbContext()
-            : base()
+        protected override void OnModelCreating(ModelBuilder modelBuilder)
         {
-
-        }
-
-        public static ApplicationDbContext Create()
-        {
-            return new ApplicationDbContext();
+            base.OnModelCreating(modelBuilder);
         }
     }
 }

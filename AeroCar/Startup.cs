@@ -29,8 +29,15 @@ namespace AeroCar
         public void ConfigureServices(IServiceCollection services)
         {
             services.AddControllers();
-            services.AddDbContext<ApplicationDbContext>(options => options.UseSqlServer(Configuration.GetConnectionString("IdentityConnection")));
-            services.AddDefaultIdentity<RegularUser>().AddEntityFrameworkStores<ApplicationDbContext>();
+            services.AddDbContext<ApplicationDbContext>(options => options.UseMySql(Configuration.GetConnectionString("IdentityConnection")));
+            services.AddDefaultIdentity<RegularUser>().AddRoles<IdentityRole>().AddEntityFrameworkStores<ApplicationDbContext>();
+
+            services.AddCors(o => o.AddPolicy("AeroCarPolicy", builder =>
+            {
+                builder.AllowAnyOrigin()
+                       .AllowAnyMethod()
+                       .AllowAnyHeader();
+            }));
 
             services.Configure<IdentityOptions>(options =>
             {
@@ -70,6 +77,8 @@ namespace AeroCar
             {
                 app.UseDeveloperExceptionPage();
             }
+
+            app.UseCors("AeroCarPolicy");
 
             app.UseRouting();
 
