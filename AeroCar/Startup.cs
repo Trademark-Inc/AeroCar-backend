@@ -28,16 +28,16 @@ namespace AeroCar
         // This method gets called by the runtime. Use this method to add services to the container.
         public void ConfigureServices(IServiceCollection services)
         {
-            services.AddControllers();
-            services.AddDbContext<ApplicationDbContext>(options => options.UseMySql(Configuration.GetConnectionString("IdentityConnection")));
-            services.AddDefaultIdentity<RegularUser>().AddRoles<IdentityRole>().AddEntityFrameworkStores<ApplicationDbContext>();
-
-            services.AddCors(o => o.AddPolicy("AeroCarPolicy", builder =>
+            services.AddCors(o => o.AddPolicy("CorsPolicy", builder =>
             {
                 builder.AllowAnyOrigin()
                        .AllowAnyMethod()
                        .AllowAnyHeader();
             }));
+
+            services.AddControllers();
+            services.AddDbContext<ApplicationDbContext>(options => options.UseMySql(Configuration.GetConnectionString("IdentityConnection")));
+            services.AddDefaultIdentity<RegularUser>().AddRoles<IdentityRole>().AddEntityFrameworkStores<ApplicationDbContext>();
 
             services.Configure<IdentityOptions>(options =>
             {
@@ -71,14 +71,14 @@ namespace AeroCar
         }
 
         // This method gets called by the runtime. Use this method to configure the HTTP request pipeline.
-        public void Configure(IApplicationBuilder app, IWebHostEnvironment env)
+        public void Configure(IApplicationBuilder app, IWebHostEnvironment env, IServiceProvider serviceProvider)
         {
             if (env.IsDevelopment())
             {
                 app.UseDeveloperExceptionPage();
             }
 
-            app.UseCors("AeroCarPolicy");
+            app.UseCors("CorsPolicy");
 
             app.UseRouting();
 
@@ -90,6 +90,8 @@ namespace AeroCar
             {
                 endpoints.MapControllers();
             });
+
+            DataSeeder.CreateRolesAndAdmin(serviceProvider, Configuration).Wait();
         }
     }
 }

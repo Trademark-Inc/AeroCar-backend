@@ -1,4 +1,5 @@
-﻿using AeroCar.Models.Users;
+﻿using AeroCar.Models.Avio;
+using AeroCar.Models.Users;
 using Microsoft.AspNetCore.Identity.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore;
 using System;

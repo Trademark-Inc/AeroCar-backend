@@ -4,6 +4,7 @@ using System.ComponentModel.DataAnnotations;
 using System.Linq;
 using System.Threading.Tasks;
 using AeroCar.Models;
+using AeroCar.Models.DTO;
 using AeroCar.Models.Registration;
 using AeroCar.Models.Users;
 using AeroCar.Utility;
@@ -60,16 +61,16 @@ namespace AeroCar.Controllers
                 Phone = model.Phone
             };
 
-            EmailUtility.SendEmail(user.Email, "Profile Status", "Your profile is being verified." +
-                "\nPlease go to the following link to verify your account: http://localhost:62541/api/user/validate?email=" + user.Email + "&validate=true");
-            user.Status = UserStatus.InProcess;
-
-            IdentityResult result = await UserManager.CreateAsync(user, model.Password);
+            var result = await UserManager.CreateAsync(user, model.Password);
 
             if (!result.Succeeded)
             {
                 return GetErrorResult(result);
             }
+
+            EmailUtility.SendEmail(user.Email, "Profile Status", "Your profile is being verified." +
+                "\nPlease go to the following link to verify your account: http://localhost:62541/api/user/validate?email=" + user.Email + "&validate=true");
+            user.Status = UserStatus.InProcess;
 
             var rmResult = await RoleManager.RoleExistsAsync("RegularUser");
             if (!rmResult)
