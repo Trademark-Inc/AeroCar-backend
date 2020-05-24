@@ -1,38 +1,42 @@
 ﻿using System;
 using System.Collections.Generic;
 using System.ComponentModel.DataAnnotations;
+using System.IdentityModel.Tokens.Jwt;
 using System.Linq;
+using System.Security.Claims;
+using System.Text;
 using System.Threading.Tasks;
 using AeroCar.Models;
 using AeroCar.Models.DTO;
 using AeroCar.Models.Registration;
 using AeroCar.Models.Users;
+using AeroCar.Services;
 using AeroCar.Utility;
+using Microsoft.AspNetCore.Authentication.JwtBearer;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Identity;
 using Microsoft.AspNetCore.Mvc;
+using Microsoft.Extensions.Configuration;
+using Microsoft.IdentityModel.Tokens;
 using Microsoft.Owin.Security;
 
 namespace AeroCar.Controllers
 {
     [Route("api/[controller]")]
-    [Authorize]
+    [Authorize(AuthenticationSchemes = JwtBearerDefaults.AuthenticationScheme)]
     [ApiController]
     public class UserController : ControllerBase
     {
-        public UserController(UserManager<RegularUser> userManager,
-                              SignInManager<RegularUser> signInManager,
-                              RoleManager<IdentityRole> roleManager)
+        private readonly IConfiguration _configuration;
+
+        public UserController(UserService userService, IConfiguration configuration)
         {
-            UserManager = userManager;
-            SignInManager = signInManager;
-            RoleManager = roleManager;
+            UserService = userService;
+            _configuration = configuration;
         }
 
-        public UserManager<RegularUser> UserManager { get; set; }
-        public SignInManager<RegularUser> SignInManager { get; set; }
-        public RoleManager<IdentityRole> RoleManager { get; set; }
+        public UserService UserService { get; set; }
 
         // POST api/user/register
         [AllowAnonymous]
@@ -61,29 +65,7 @@ namespace AeroCar.Controllers
                 Phone = model.Phone
             };
 
-            var result = await UserManager.CreateAsync(user, model.Password);
-
-            if (!result.Succeeded)
-            {
-                return GetErrorResult(result);
-            }
-
-            EmailUtility.SendEmail(user.Email, "Profile Status", "Your profile is being verified." +
-                "\nPlease go to the following link to verify your account: http://localhost:62541/api/user/validate?email=" + user.Email + "&validate=true");
-            user.Status = UserStatus.InProcess;
-
-            var rmResult = await RoleManager.RoleExistsAsync("RegularUser");
-            if (!rmResult)
-            {
-                result = await RoleManager.CreateAsync(new IdentityRole("RegularUser"));
-
-                if (!result.Succeeded)
-                {
-                    return GetErrorResult(result);
-                }
-            }
-
-            result = await UserManager.AddToRoleAsync(user, "RegularUser");
+            var result = await UserService.RegisterUser(user, model.Password);
 
             if (!result.Succeeded)
             {
@@ -99,19 +81,13 @@ namespace AeroCar.Controllers
         [Route("validate")]
         public async Task<IActionResult> ValidateUser(string email, bool validate)
         {
-            RegularUser applicationUser = await UserManager.FindByEmailAsync(email);
-            if (validate)
+            if (!ModelState.IsValid)
             {
-                EmailUtility.SendEmail(email, "Profile Status", "Your profile has been verified. Congratulations!");
-                applicationUser.Status = UserStatus.Activated;
-            }
-            else
-            {
-                EmailUtility.SendEmail(email, "Profile Status", "Your profile has been declined.");
-                applicationUser.Status = UserStatus.Declined;
+                return BadRequest(ModelState);
             }
 
-            IdentityResult result = await UserManager.UpdateAsync(applicationUser);
+            var result = await UserService.ValidateUser(email, validate);
+
             if (!result.Succeeded)
             {
                 return GetErrorResult(result);
@@ -125,7 +101,7 @@ namespace AeroCar.Controllers
         [Route("logout")]
         public async Task<IActionResult> Logout()
         {
-            await SignInManager.SignOutAsync();
+            await UserService.LogoutCurrentUser();
             return Ok(200);
         }
 
@@ -137,20 +113,52 @@ namespace AeroCar.Controllers
         {
             if (ModelState.IsValid)
             {
-                var user = await UserManager.FindByNameAsync(model.Username);
-
-                if (user.Status == UserStatus.Activated)
+                var result = await UserService.LoginUser(model);
+                
+                if (result != null && result.Succeeded)
                 {
-                    var result = await SignInManager.PasswordSignInAsync(user, model.Password, true, false);
+                    var user = await UserService.GetUserByUsernameAndPassword(model.Username, model.Password);
 
-                    if (result.Succeeded)
+                    var tokenHandler = new JwtSecurityTokenHandler();
+                    var key = Encoding.ASCII.GetBytes(_configuration["AppSettings:Secret"]);
+                    var tokenDescriptor = new SecurityTokenDescriptor
                     {
-                        return Ok(200);
-                    }
+                        Subject = new ClaimsIdentity(new[]
+                        {
+                            new Claim(ClaimTypes.NameIdentifier, user.Id),
+                            new Claim(ClaimTypes.Name, user.UserName)
+                        }),
+                        Expires = DateTime.UtcNow.AddYears(3),
+                        SigningCredentials = new SigningCredentials(new SymmetricSecurityKey(key), SecurityAlgorithms.HmacSha256Signature)
+                    };
+
+                    var token = tokenHandler.CreateToken(tokenDescriptor);
+                    var t = tokenHandler.WriteToken(token);
+                    return Ok(new { t, model.RedirectUrl });
                 }
             }
 
             ModelState.AddModelError("", "Invalid login attempt");
+            return BadRequest(ModelState);
+        }
+
+        // GET api/user/current
+        [AllowAnonymous]
+        [HttpGet]
+        [Route("current")]
+        public async Task<IActionResult> GetCurrentUser()
+        {
+            if (ModelState.IsValid)
+            {
+                var user = await UserService.GetCurrentUser();
+                
+                if (user != null)
+                {
+                    return Ok(new { user });
+                }
+            }
+
+            ModelState.AddModelError("", "Cannot retrieve user data.");
             return BadRequest(ModelState);
         }
 

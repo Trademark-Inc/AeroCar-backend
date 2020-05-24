@@ -17,7 +17,7 @@ namespace AeroCar.Models
             var roleManager = serviceProvider.GetRequiredService<RoleManager<IdentityRole>>();
             var userManager = serviceProvider.GetRequiredService<UserManager<RegularUser>>();
 
-            string[] roleNames = { "Admin", "RegularUser" };
+            string[] roleNames = { "SystemAdmin", "AvioAdmin", "CarAdmin", "RegularUser" };
 
             foreach (var roleName in roleNames)
             {
@@ -30,7 +30,8 @@ namespace AeroCar.Models
             {
                 UserName = configuration.GetSection("AdminData")["Username"],
                 EmailConfirmed = true,
-                PhoneNumberConfirmed = true
+                PhoneNumberConfirmed = true,
+                Status = UserStatus.Activated
             };
 
             string userPassword = configuration.GetSection("AdminData")["Password"];
@@ -41,7 +42,7 @@ namespace AeroCar.Models
                 var createdAdmin = await userManager.CreateAsync(admin, userPassword);
                 if (createdAdmin.Succeeded)
                 {
-                    await userManager.AddToRoleAsync(admin, "Admin");
+                    await userManager.AddToRoleAsync(admin, "SystemAdmin");
                 }
             }
         }
