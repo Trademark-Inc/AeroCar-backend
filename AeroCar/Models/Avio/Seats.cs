@@ -19,6 +19,6 @@ namespace AeroCar.Models.Avio
 
         public int InOneRow { get; set; }
 
-        public List<long> DeletedSeats { get; set; }
+        public List<DeletedSeats> DeletedSeats { get; set; }
     }
 }

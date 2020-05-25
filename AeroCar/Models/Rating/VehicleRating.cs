@@ -7,7 +7,7 @@ using System.Threading.Tasks;
 
 namespace AeroCar.Models.Rating
 {
-    public class CarRating
+    public class VehicleRating
     {
         [Key]
         public long RatingId { get; set; }

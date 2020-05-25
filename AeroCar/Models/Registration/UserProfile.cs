@@ -21,7 +21,7 @@ namespace AeroCar.Models.Registration
 
         public string Phone { get; set; }
 
-        public List<long> Friends { get; set; }
+        public List<Friend> Friends { get; set; }
 
         public List<FlightReservation> ReservedFlights { get; set; }
 

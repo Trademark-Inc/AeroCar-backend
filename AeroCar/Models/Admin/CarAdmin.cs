@@ -1,4 +1,5 @@
-﻿using System;
+﻿using Microsoft.AspNetCore.Identity;
+using System;
 using System.Collections.Generic;
 using System.ComponentModel.DataAnnotations;
 using System.ComponentModel.DataAnnotations.Schema;
@@ -7,11 +8,8 @@ using System.Threading.Tasks;
 
 namespace AeroCar.Models.Admin
 {
-    public class CarAdmin
+    public class CarAdmin : IdentityUser
     {
-        [Key]
-        public long CarAdminId { get; set; }
-
         [ForeignKey("CarCompany.CarCompanyId")]
         public long CarCompanyId { get; set; }
 
