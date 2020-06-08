@@ -152,5 +152,24 @@ namespace AeroCar.Services
         {
             await _userRepository.UpdateUser(user);
         }
+
+        public async Task<List<Friend>> GetUserFriends(string id)
+        {
+            return await _userRepository.GetUserFriends(id);
+        }
+
+        public async Task AddFriend(RegularUser user, string friendUsername)
+        {
+            var friend = await GetUserByUsername(friendUsername);
+
+            await _userRepository.AddFriend(new Friend() { FriendId = friend.Id, UserId = user.Id });
+        }
+
+        public async Task RemoveFriend(RegularUser user, string friendUsername)
+        {
+            var friend = await GetUserByUsername(friendUsername);
+
+            await _userRepository.RemoveFriend(await _userRepository.GetUserFriend(user.Id, friend.Id));
+        }
     }
 }

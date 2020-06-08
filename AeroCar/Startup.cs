@@ -72,6 +72,15 @@ namespace AeroCar
 
             services.AddAuthorization();
 
+            services.AddTransient<PriceListItemService>();
+            services.AddTransient<PriceListItemRepository>();
+
+            services.AddTransient<AvioAdminService>();
+            services.AddTransient<AvioAdminRepository>();
+
+            services.AddTransient<AvioService>();
+            services.AddTransient<AvioRepository>();
+
             services.AddTransient<UserService>();
             services.AddTransient<UserRepository>();
 

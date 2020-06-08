@@ -8,6 +8,7 @@ using System.Text;
 using System.Threading.Tasks;
 using AeroCar.Models;
 using AeroCar.Models.DTO;
+using AeroCar.Models.DTO.Registration;
 using AeroCar.Models.Registration;
 using AeroCar.Models.Users;
 using AeroCar.Services;
@@ -32,11 +33,11 @@ namespace AeroCar.Controllers
 
         public UserController(UserService userService, IConfiguration configuration)
         {
-            UserService = userService;
+            _userService = userService;
             _configuration = configuration;
         }
 
-        public UserService UserService { get; set; }
+        public UserService _userService { get; set; }
 
         // POST api/user/register
         [AllowAnonymous]
@@ -65,7 +66,7 @@ namespace AeroCar.Controllers
                 Phone = model.Phone
             };
 
-            var result = await UserService.RegisterUser(user, model.Password);
+            var result = await _userService.RegisterUser(user, model.Password);
 
             if (!result.Succeeded)
             {
@@ -86,7 +87,7 @@ namespace AeroCar.Controllers
                 return BadRequest(ModelState);
             }
 
-            var result = await UserService.ValidateUser(email, validate);
+            var result = await _userService.ValidateUser(email, validate);
 
             if (!result.Succeeded)
             {
@@ -101,7 +102,7 @@ namespace AeroCar.Controllers
         [Route("logout")]
         public async Task<IActionResult> Logout()
         {
-            await UserService.LogoutCurrentUser();
+            await _userService.LogoutCurrentUser();
             return Ok(200);
         }
 
@@ -113,11 +114,11 @@ namespace AeroCar.Controllers
         {
             if (ModelState.IsValid)
             {
-                var result = await UserService.LoginUser(model);
+                var result = await _userService.LoginUser(model);
                 
                 if (result != null && result.Succeeded)
                 {
-                    var user = await UserService.GetUserByUsernameAndPassword(model.Username, model.Password);
+                    var user = await _userService.GetUserByUsernameAndPassword(model.Username, model.Password);
 
                     var tokenHandler = new JwtSecurityTokenHandler();
                     var key = Encoding.ASCII.GetBytes(_configuration["AppSettings:Secret"]);
@@ -142,6 +143,103 @@ namespace AeroCar.Controllers
             return BadRequest(ModelState);
         }
 
+        // POST api/user/update
+        [HttpPost]
+        [Route("update")]
+        public async Task<IActionResult> UpdateProfile([FromBody] UserUpdate model)
+        {
+            if (ModelState.IsValid)
+            {
+                var user = await _userService.GetCurrentUser();
+
+                user.Name = model.Name;
+                user.Surname = model.Surname;
+                user.Phone = model.Phone;
+                user.Email = model.Email;
+                user.City = model.City;
+
+                await _userService.UpdateUser(user);
+                return Ok(200);
+            }
+
+            return BadRequest("Not enough data provided.");
+        }
+
+        // GET api/user/friends
+        [HttpGet]
+        [Route("friends")]
+        public async Task<IActionResult> GetFriends()
+        {
+            if (ModelState.IsValid)
+            {
+                var user = await _userService.GetCurrentUser();
+
+                if (user != null)
+                {
+                    var friends = await _userService.GetUserFriends(user.Id);
+
+                    List<FriendDTO> retVal = new List<FriendDTO>();
+                    foreach (var friend in friends)
+                    {
+                        var friendUser = await _userService.GetUserById(friend.FriendId);
+                        retVal.Add(new FriendDTO()
+                        {
+                            Id = friendUser.Id,
+                            Username = friendUser.UserName,
+                            Name = friendUser.Name,
+                            Surname = friendUser.Surname,
+                            Email = friendUser.Email,
+                        });
+                    }
+
+                    return Ok(retVal);
+                }
+            }
+
+            ModelState.AddModelError("", "Cannot retrieve user data.");
+            return BadRequest(ModelState);
+        }
+
+        // POST api/user/friends/add/{username}
+        [HttpPost]
+        [Route("friends/add/{username}")]
+        public async Task<IActionResult> AddFriend(string username)
+        {
+            if (ModelState.IsValid)
+            {
+                var user = await _userService.GetCurrentUser();
+
+                if (user != null)
+                {
+                    if (user.UserName == username) return BadRequest("Friend cannot be the same user!");
+
+                    await _userService.AddFriend(user, username);
+                    return Ok(200);
+                }
+            }
+
+            return BadRequest("No username provided.");
+        }
+
+        // POST api/user/friends/remove/{username}
+        [HttpPost]
+        [Route("friends/remove/{username}")]
+        public async Task<IActionResult> RemoveFriend(string username)
+        {
+            if (ModelState.IsValid)
+            {
+                var user = await _userService.GetCurrentUser();
+
+                if (user != null)
+                {
+                    await _userService.RemoveFriend(user, username);
+                    return Ok(200);
+                }
+            }
+
+            return BadRequest("No username provided.");
+        }
+
         // GET api/user/current
         [AllowAnonymous]
         [HttpGet]
@@ -150,7 +248,7 @@ namespace AeroCar.Controllers
         {
             if (ModelState.IsValid)
             {
-                var user = await UserService.GetCurrentUser();
+                var user = await _userService.GetCurrentUser();
                 
                 if (user != null)
                 {
