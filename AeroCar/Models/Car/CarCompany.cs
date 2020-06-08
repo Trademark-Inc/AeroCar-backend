@@ -16,9 +16,9 @@ namespace AeroCar.Models.Car
         [ForeignKey("CarCompanyProfile.CarCompanyProfileId")]
         public long CarCompanyProfileId { get; set; }
 
-        public List<Vehicle> Vehicle { get; set; }
+        public List<Vehicle> Vehicles { get; set; }
 
-        public List<Office> Office { get; set; }
+        public List<Office> Offices { get; set; }
 
         public List<FastReservationCarTicket> FastReservationCarTickets { get; set; }
     }

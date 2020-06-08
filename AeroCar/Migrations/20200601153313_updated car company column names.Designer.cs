@@ -3,14 +3,16 @@ using System;
 using AeroCar.Models;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore.Infrastructure;
+using Microsoft.EntityFrameworkCore.Migrations;
 using Microsoft.EntityFrameworkCore.Storage.ValueConversion;
 
 namespace AeroCar.Migrations
 {
     [DbContext(typeof(ApplicationDbContext))]
-    partial class ApplicationDbContextModelSnapshot : ModelSnapshot
+    [Migration("20200601153313_updated car company column names")]
+    partial class updatedcarcompanycolumnnames
     {
-        protected override void BuildModel(ModelBuilder modelBuilder)
+        protected override void BuildTargetModel(ModelBuilder modelBuilder)
         {
 #pragma warning disable 612, 618
             modelBuilder
@@ -19,32 +21,116 @@ namespace AeroCar.Migrations
 
             modelBuilder.Entity("AeroCar.Models.Admin.AvioAdmin", b =>
                 {
-                    b.Property<string>("UserId")
+                    b.Property<string>("Id")
                         .HasColumnType("varchar(255) CHARACTER SET utf8mb4");
+
+                    b.Property<int>("AccessFailedCount")
+                        .HasColumnType("int");
 
                     b.Property<long>("AvioCompanyId")
                         .HasColumnType("bigint");
 
+                    b.Property<string>("ConcurrencyStamp")
+                        .HasColumnType("longtext CHARACTER SET utf8mb4");
+
+                    b.Property<string>("Email")
+                        .HasColumnType("longtext CHARACTER SET utf8mb4");
+
+                    b.Property<bool>("EmailConfirmed")
+                        .HasColumnType("tinyint(1)");
+
+                    b.Property<bool>("LockoutEnabled")
+                        .HasColumnType("tinyint(1)");
+
+                    b.Property<DateTimeOffset?>("LockoutEnd")
+                        .HasColumnType("datetime(6)");
+
+                    b.Property<string>("NormalizedEmail")
+                        .HasColumnType("longtext CHARACTER SET utf8mb4");
+
+                    b.Property<string>("NormalizedUserName")
+                        .HasColumnType("longtext CHARACTER SET utf8mb4");
+
+                    b.Property<string>("PasswordHash")
+                        .HasColumnType("longtext CHARACTER SET utf8mb4");
+
+                    b.Property<string>("PhoneNumber")
+                        .HasColumnType("longtext CHARACTER SET utf8mb4");
+
+                    b.Property<bool>("PhoneNumberConfirmed")
+                        .HasColumnType("tinyint(1)");
+
+                    b.Property<string>("SecurityStamp")
+                        .HasColumnType("longtext CHARACTER SET utf8mb4");
+
                     b.Property<bool>("SetUpPassword")
                         .HasColumnType("tinyint(1)");
 
-                    b.HasKey("UserId");
+                    b.Property<bool>("TwoFactorEnabled")
+                        .HasColumnType("tinyint(1)");
+
+                    b.Property<string>("UserName")
+                        .HasColumnType("longtext CHARACTER SET utf8mb4");
+
+                    b.HasKey("Id");
 
                     b.ToTable("AvioAdmins");
                 });
 
             modelBuilder.Entity("AeroCar.Models.Admin.CarAdmin", b =>
                 {
-                    b.Property<string>("UserId")
+                    b.Property<string>("Id")
                         .HasColumnType("varchar(255) CHARACTER SET utf8mb4");
+
+                    b.Property<int>("AccessFailedCount")
+                        .HasColumnType("int");
 
                     b.Property<long>("CarCompanyId")
                         .HasColumnType("bigint");
 
+                    b.Property<string>("ConcurrencyStamp")
+                        .HasColumnType("longtext CHARACTER SET utf8mb4");
+
+                    b.Property<string>("Email")
+                        .HasColumnType("longtext CHARACTER SET utf8mb4");
+
+                    b.Property<bool>("EmailConfirmed")
+                        .HasColumnType("tinyint(1)");
+
+                    b.Property<bool>("LockoutEnabled")
+                        .HasColumnType("tinyint(1)");
+
+                    b.Property<DateTimeOffset?>("LockoutEnd")
+                        .HasColumnType("datetime(6)");
+
+                    b.Property<string>("NormalizedEmail")
+                        .HasColumnType("longtext CHARACTER SET utf8mb4");
+
+                    b.Property<string>("NormalizedUserName")
+                        .HasColumnType("longtext CHARACTER SET utf8mb4");
+
+                    b.Property<string>("PasswordHash")
+                        .HasColumnType("longtext CHARACTER SET utf8mb4");
+
+                    b.Property<string>("PhoneNumber")
+                        .HasColumnType("longtext CHARACTER SET utf8mb4");
+
+                    b.Property<bool>("PhoneNumberConfirmed")
+                        .HasColumnType("tinyint(1)");
+
+                    b.Property<string>("SecurityStamp")
+                        .HasColumnType("longtext CHARACTER SET utf8mb4");
+
                     b.Property<bool>("SetUpPassword")
                         .HasColumnType("tinyint(1)");
 
-                    b.HasKey("UserId");
+                    b.Property<bool>("TwoFactorEnabled")
+                        .HasColumnType("tinyint(1)");
+
+                    b.Property<string>("UserName")
+                        .HasColumnType("longtext CHARACTER SET utf8mb4");
+
+                    b.HasKey("Id");
 
                     b.ToTable("CarAdmins");
                 });
@@ -139,9 +225,6 @@ namespace AeroCar.Migrations
                     b.Property<DateTime>("Arrival")
                         .HasColumnType("datetime(6)");
 
-                    b.Property<long?>("ArrivalLocationDestinationId")
-                        .HasColumnType("bigint");
-
                     b.Property<long>("AvioCompanyId")
                         .HasColumnType("bigint");
 
@@ -157,12 +240,10 @@ namespace AeroCar.Migrations
                     b.Property<double>("TravelDistance")
                         .HasColumnType("double");
 
-                    b.Property<double>("TravelTime")
-                        .HasColumnType("double");
+                    b.Property<long>("TravelTime")
+                        .HasColumnType("bigint");
 
                     b.HasKey("FlightId");
-
-                    b.HasIndex("ArrivalLocationDestinationId");
 
                     b.HasIndex("AvioCompanyId");
 
@@ -347,7 +428,7 @@ namespace AeroCar.Migrations
 
                     b.HasIndex("FlightId");
 
-                    b.ToTable("Destinations");
+                    b.ToTable("Destination");
                 });
 
             modelBuilder.Entity("AeroCar.Models.Rating.AvioCompanyRating", b =>
@@ -461,7 +542,7 @@ namespace AeroCar.Migrations
 
                     b.HasIndex("UserProfileId");
 
-                    b.ToTable("Friends");
+                    b.ToTable("Friend");
                 });
 
             modelBuilder.Entity("AeroCar.Models.Registration.Invitation", b =>
@@ -870,10 +951,6 @@ namespace AeroCar.Migrations
 
             modelBuilder.Entity("AeroCar.Models.Avio.Flight", b =>
                 {
-                    b.HasOne("AeroCar.Models.Destination", "ArrivalLocation")
-                        .WithMany()
-                        .HasForeignKey("ArrivalLocationDestinationId");
-
                     b.HasOne("AeroCar.Models.Avio.AvioCompany", null)
                         .WithMany("Flights")
                         .HasForeignKey("AvioCompanyId")

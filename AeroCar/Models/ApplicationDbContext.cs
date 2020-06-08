@@ -22,6 +22,8 @@ namespace AeroCar.Models
                 
         }
 
+        public DbSet<Destination> Destinations { get; set; }
+
         public DbSet<AvioAdmin> AvioAdmins { get; set; }
 
         public DbSet<CarAdmin> CarAdmins { get; set; }
@@ -55,6 +57,8 @@ namespace AeroCar.Models
         public DbSet<FlightRating> FlightRatings { get; set; }
 
         public DbSet<VehicleRating> CarRatings { get; set; }
+
+        public DbSet<Friend> Friends { get; set; }
 
         public DbSet<Invitation> Invitations { get; set; }
 

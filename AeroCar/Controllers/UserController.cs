@@ -30,14 +30,13 @@ namespace AeroCar.Controllers
     public class UserController : ControllerBase
     {
         private readonly IConfiguration _configuration;
+        private readonly UserService _userService;
 
         public UserController(UserService userService, IConfiguration configuration)
         {
             _userService = userService;
             _configuration = configuration;
         }
-
-        public UserService _userService { get; set; }
 
         // POST api/user/register
         [AllowAnonymous]
@@ -142,11 +141,11 @@ namespace AeroCar.Controllers
             ModelState.AddModelError("", "Invalid login attempt");
             return BadRequest(ModelState);
         }
-
+        
         // POST api/user/update
         [HttpPost]
         [Route("update")]
-        public async Task<IActionResult> UpdateProfile([FromBody] UserUpdate model)
+        public async Task<IActionResult> UpdateProfile([FromBody]UserUpdate model)
         {
             if (ModelState.IsValid)
             {
@@ -182,7 +181,7 @@ namespace AeroCar.Controllers
                     foreach (var friend in friends)
                     {
                         var friendUser = await _userService.GetUserById(friend.FriendId);
-                        retVal.Add(new FriendDTO()
+                        retVal.Add(new FriendDTO() 
                         {
                             Id = friendUser.Id,
                             Username = friendUser.UserName,
@@ -241,7 +240,6 @@ namespace AeroCar.Controllers
         }
 
         // GET api/user/current
-        [AllowAnonymous]
         [HttpGet]
         [Route("current")]
         public async Task<IActionResult> GetCurrentUser()

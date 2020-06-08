@@ -20,6 +20,7 @@ using Microsoft.AspNetCore.Authentication.Cookies;
 using System.Text;
 using Microsoft.AspNetCore.Authentication.JwtBearer;
 using Microsoft.IdentityModel.Tokens;
+using AeroCar.Models.Admin;
 
 namespace AeroCar
 {
@@ -66,11 +67,24 @@ namespace AeroCar
                         ValidateIssuer = false,
                         ValidateAudience = false
                     };
-                }); ;
-
-            services.AddAuthentication(CookieAuthenticationDefaults.AuthenticationScheme).AddCookie();
+                });
 
             services.AddAuthorization();
+
+            services.AddTransient<DestinationService>();
+            services.AddTransient<DestinationRepository>();
+
+            services.AddTransient<AeroplaneService>();
+            services.AddTransient<AeroplaneRepository>();
+
+            services.AddTransient<SeatService>();
+            services.AddTransient<SeatRepository>();
+
+            services.AddTransient<FlightService>();
+            services.AddTransient<FlightRepository>();
+
+            services.AddTransient<FastReservationFlightTicketService>();
+            services.AddTransient<FastReservationFlightTicketRepository>();
 
             services.AddTransient<PriceListItemService>();
             services.AddTransient<PriceListItemRepository>();
@@ -78,11 +92,17 @@ namespace AeroCar
             services.AddTransient<AvioAdminService>();
             services.AddTransient<AvioAdminRepository>();
 
-            services.AddTransient<AvioService>();
-            services.AddTransient<AvioRepository>();
+            services.AddTransient<CarAdminService>();
+            services.AddTransient<CarAdminRepository>();
 
             services.AddTransient<UserService>();
             services.AddTransient<UserRepository>();
+
+            services.AddTransient<AvioService>();
+            services.AddTransient<AvioRepository>();
+
+            services.AddTransient<RentACarService>();
+            services.AddTransient<RentACarRepository>();
 
             services.Configure<IdentityOptions>(options =>
             {
@@ -142,7 +162,16 @@ namespace AeroCar
                 endpoints.MapControllers();
             });
 
+            // system admin
             DataSeeder.CreateRolesAndAdmin(serviceProvider, Configuration).Wait();
+
+            // default companies
+            DataSeeder.AddDefaultAvioCompanies(serviceProvider, Configuration).Wait();
+            DataSeeder.AddDefaultCarCompanies(serviceProvider, Configuration).Wait();
+
+            // default company admins
+            DataSeeder.AddDefaultAvioCompanyAdmins(serviceProvider, Configuration).Wait();
+            DataSeeder.AddDefaultCarCompanyAdmins(serviceProvider, Configuration).Wait();
         }
     }
 }

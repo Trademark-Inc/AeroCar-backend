@@ -12,9 +12,6 @@ namespace AeroCar.Models.Car
         [Key]
         public long CarCompanyProfileId { get; set; }
 
-        [ForeignKey("CarCompany.CarCompanyId")]
-        public long CarCompanyId { get; set; }
-
         public string Name { get; set; }
 
         public string Address { get; set; }

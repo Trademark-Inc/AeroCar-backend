@@ -1,11 +1,15 @@
-﻿using AeroCar.Models.Admin;
+﻿using AeroCar.Models;
+using AeroCar.Models.Admin;
 using AeroCar.Models.Avio;
 using AeroCar.Models.DTO.Avio;
+using AeroCar.Models.Reservation;
 using AeroCar.Models.Users;
 using AeroCar.Services;
+using Microsoft.AspNetCore.Authentication.JwtBearer;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Identity;
 using Microsoft.AspNetCore.Mvc;
+using Microsoft.EntityFrameworkCore.Metadata.Internal;
 using System;
 using System.Collections.Generic;
 using System.Linq;
@@ -14,19 +18,26 @@ using System.Threading.Tasks;
 namespace AeroCar.Controllers
 {
     [Route("api/[controller]")]
-    [Authorize]
+    [Authorize(AuthenticationSchemes = JwtBearerDefaults.AuthenticationScheme)]
     [ApiController]
     public class AvioAdminController : ControllerBase
     {
-        public AvioAdminController(AvioService avioService, AvioAdminService avioAdminService, PriceListItemService priceListItemService)
+        public AvioAdminController(AvioService avioService, AvioAdminService avioAdminService, AeroplaneService aeroplaneService, FlightService flightService,
+            FastReservationFlightTicketService fastReservationFlightTicketService, PriceListItemService priceListItemService)
         {
             AvioService = avioService;
             AvioAdminService = avioAdminService;
+            AeroplaneService = aeroplaneService;
+            FlightService = flightService;
+            FastReservationFlightTicketService = fastReservationFlightTicketService;
             PriceListItemService = priceListItemService;
         }
 
         public AvioService AvioService { get; set; }
         public AvioAdminService AvioAdminService { get; set; }
+        public AeroplaneService AeroplaneService { get; set; }
+        public FlightService FlightService { get; set; }
+        public FastReservationFlightTicketService FastReservationFlightTicketService { get; set; }
         public PriceListItemService PriceListItemService { get; set; }
 
         // GET api/avioadmin/company/get/profile
@@ -58,7 +69,7 @@ namespace AeroCar.Controllers
         // POST api/avioadmin/company/update/profile
         [HttpPost]
         [Route("company/update/profile")]
-        public async Task<IActionResult> UpdateCompanyProfile([FromBody] AvioCompanyProfile model)
+        public async Task<IActionResult> UpdateCompanyProfile([FromBody]AvioCompanyProfile model)
         {
             if (ModelState.IsValid)
             {
@@ -79,17 +90,164 @@ namespace AeroCar.Controllers
                         await AvioService.UpdateCompanyProfile(avioCompanyProfile);
                         return Ok(200);
                     }
+                } 
+            }
+
+            return BadRequest("Not enough data provided.");
+        }
+
+        #region Flights
+        // POST api/avioadmin/company/create/flight
+        [HttpPost]
+        [Route("company/create/flight")]
+        public async Task<IActionResult> CreateFlight([FromBody]FlightDTO model)
+        {
+            if (ModelState.IsValid)
+            {
+                var user = await AvioAdminService.GetCurrentUser();
+
+                if (user != null)
+                {
+                    var avioCompany = await AvioService.GetCompany(user.AvioCompanyId);
+
+                    if (avioCompany != null)
+                    {
+                        model.DepartureLocation.DestinationId = 0;
+                        model.ArrivalLocation.DestinationId = 0;
+                        foreach (Destination d in model.Transit)
+                        {
+                            d.DestinationId = 0;
+                        }
+
+                        var flight = new Flight()
+                        {
+                            AeroplaneId = (await AeroplaneService.GetAeroplane(user.AvioCompanyId, model.Aeroplane)).AeroplaneId,
+                            Arrival = model.Arrival,
+                            ArrivalLocation = model.ArrivalLocation,
+                            Departure = model.Departure,
+                            DepartureLocation = model.DepartureLocation,
+                            AvioCompanyId = user.AvioCompanyId,
+                            Price = model.Price,
+                            Transit = model.Transit,
+                            TravelDistance = model.TravelDistance,
+                            TravelTime = model.TravelTime
+                        };
+
+                        avioCompany.Flights.Add(flight);
+                        await AvioService.UpdateCompany(avioCompany);
+
+                        return Ok(200);
+                    }
                 }
             }
 
             return BadRequest("Not enough data provided.");
         }
 
+        // POST api/avioadmin/company/remove/flight/{id}
+        [HttpPost]
+        [Route("company/remove/flight/{id}")]
+        public async Task<IActionResult> RemoveFlight(long id)
+        {
+            if (ModelState.IsValid)
+            {
+                var user = await AvioAdminService.GetCurrentUser();
+
+                if (user != null)
+                {
+                    var avioCompany = await AvioService.GetCompany(user.AvioCompanyId);
+
+                    if (avioCompany != null)
+                    {
+                        var flight = avioCompany.Flights.Where(f => f.FlightId == id).SingleOrDefault();
+
+                        if (flight != null)
+                        {
+                            await FlightService.RemoveFlight(flight);
+
+                            return Ok(200);
+                        }
+                    }
+                    else return BadRequest("Company wasn't found.");
+                }
+            }
+
+            return BadRequest("No sufficient data provided.");
+        }
+        #endregion
+
+        #region Fast Reservation Flight Tickets
+        // POST api/avioadmin/company/create/ticket
+        [HttpPost]
+        [Route("company/create/ticket")]
+        public async Task<IActionResult> CreateTicket([FromBody]FastReservationFlightTicketDTO ticket)
+        {
+            if (ModelState.IsValid)
+            {
+                var user = await AvioAdminService.GetCurrentUser();
+
+                if (user != null)
+                {
+                    var avioCompany = await AvioService.GetCompany(user.AvioCompanyId);
+
+                    if (avioCompany != null)
+                    {
+                        FastReservationFlightTicket frft = new FastReservationFlightTicket()
+                        {
+                            FlightId = ticket.FlightId,
+                            Percent = ticket.Percent
+                        };
+
+                        if ((await FlightService.GetFlight(frft.FlightId)) == null) return BadRequest("Flight not found.");
+
+                        avioCompany.FastReservationTickets.Add(frft);
+                        await AvioService.UpdateCompany(avioCompany);
+
+                        return Ok(200);
+                    }
+                }
+            }
+
+            return BadRequest("Not enough data provided.");
+        }
+
+        // POST api/avioadmin/company/remove/ticket/{id}
+        [HttpPost]
+        [Route("company/remove/ticket/{id}")]
+        public async Task<IActionResult> RemoveTicket(long id)
+        {
+            if (ModelState.IsValid)
+            {
+                var user = await AvioAdminService.GetCurrentUser();
+
+                if (user != null)
+                {
+                    var avioCompany = await AvioService.GetCompany(user.AvioCompanyId);
+
+                    if (avioCompany != null)
+                    {
+                        var ticket = avioCompany.FastReservationTickets.Where(t => t.FRFTId == id).SingleOrDefault();
+
+                        if (ticket != null)
+                        {
+                            await FastReservationFlightTicketService.RemoveTicket(ticket);
+
+                            return Ok(200);
+                        }
+                    }
+                    else return BadRequest("Company wasn't found.");
+                }
+            }
+
+            return BadRequest("No sufficient data provided.");
+        }
+        #endregion
+
         #region Price List Items
         // POST api/avioadmin/company/create/item
         [HttpPost]
         [Route("company/create/item")]
-        public async Task<IActionResult> CreateItem([FromBody] PriceListItemDTO model)
+        public async Task<IActionResult> CreateItem([FromBody]PriceListItemDTO model)
         {
             if (ModelState.IsValid)
             {

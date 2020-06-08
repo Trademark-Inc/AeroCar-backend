@@ -1,4 +1,5 @@
-﻿using System;
+﻿using Microsoft.EntityFrameworkCore.Metadata.Internal;
+using System;
 using System.Collections.Generic;
 using System.ComponentModel.DataAnnotations;
 using System.ComponentModel.DataAnnotations.Schema;
@@ -11,9 +12,6 @@ namespace AeroCar.Models.Avio
     {
         [Key]
         public long AvioCompanyProfileId { get; set; }
-
-        [ForeignKey("AvioCompany.AvioCompanyId")]
-        public long AvioCompanyId { get; set; }
 
         public string Name { get; set; }
 

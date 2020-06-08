@@ -3,51 +3,21 @@ using System;
 using AeroCar.Models;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore.Infrastructure;
+using Microsoft.EntityFrameworkCore.Migrations;
 using Microsoft.EntityFrameworkCore.Storage.ValueConversion;
 
 namespace AeroCar.Migrations
 {
     [DbContext(typeof(ApplicationDbContext))]
-    partial class ApplicationDbContextModelSnapshot : ModelSnapshot
+    [Migration("20200603235247_changed admins")]
+    partial class changedadmins
     {
-        protected override void BuildModel(ModelBuilder modelBuilder)
+        protected override void BuildTargetModel(ModelBuilder modelBuilder)
         {
 #pragma warning disable 612, 618
             modelBuilder
                 .HasAnnotation("ProductVersion", "3.1.4")
                 .HasAnnotation("Relational:MaxIdentifierLength", 64);
-
-            modelBuilder.Entity("AeroCar.Models.Admin.AvioAdmin", b =>
-                {
-                    b.Property<string>("UserId")
-                        .HasColumnType("varchar(255) CHARACTER SET utf8mb4");
-
-                    b.Property<long>("AvioCompanyId")
-                        .HasColumnType("bigint");
-
-                    b.Property<bool>("SetUpPassword")
-                        .HasColumnType("tinyint(1)");
-
-                    b.HasKey("UserId");
-
-                    b.ToTable("AvioAdmins");
-                });
-
-            modelBuilder.Entity("AeroCar.Models.Admin.CarAdmin", b =>
-                {
-                    b.Property<string>("UserId")
-                        .HasColumnType("varchar(255) CHARACTER SET utf8mb4");
-
-                    b.Property<long>("CarCompanyId")
-                        .HasColumnType("bigint");
-
-                    b.Property<bool>("SetUpPassword")
-                        .HasColumnType("tinyint(1)");
-
-                    b.HasKey("UserId");
-
-                    b.ToTable("CarAdmins");
-                });
 
             modelBuilder.Entity("AeroCar.Models.Avio.Aeroplane", b =>
                 {
@@ -139,9 +109,6 @@ namespace AeroCar.Migrations
                     b.Property<DateTime>("Arrival")
                         .HasColumnType("datetime(6)");
 
-                    b.Property<long?>("ArrivalLocationDestinationId")
-                        .HasColumnType("bigint");
-
                     b.Property<long>("AvioCompanyId")
                         .HasColumnType("bigint");
 
@@ -157,12 +124,10 @@ namespace AeroCar.Migrations
                     b.Property<double>("TravelDistance")
                         .HasColumnType("double");
 
-                    b.Property<double>("TravelTime")
-                        .HasColumnType("double");
+                    b.Property<long>("TravelTime")
+                        .HasColumnType("bigint");
 
                     b.HasKey("FlightId");
-
-                    b.HasIndex("ArrivalLocationDestinationId");
 
                     b.HasIndex("AvioCompanyId");
 
@@ -347,7 +312,7 @@ namespace AeroCar.Migrations
 
                     b.HasIndex("FlightId");
 
-                    b.ToTable("Destinations");
+                    b.ToTable("Destination");
                 });
 
             modelBuilder.Entity("AeroCar.Models.Rating.AvioCompanyRating", b =>
@@ -461,7 +426,7 @@ namespace AeroCar.Migrations
 
                     b.HasIndex("UserProfileId");
 
-                    b.ToTable("Friends");
+                    b.ToTable("Friend");
                 });
 
             modelBuilder.Entity("AeroCar.Models.Registration.Invitation", b =>
@@ -656,6 +621,10 @@ namespace AeroCar.Migrations
                         .IsConcurrencyToken()
                         .HasColumnType("longtext CHARACTER SET utf8mb4");
 
+                    b.Property<string>("Discriminator")
+                        .IsRequired()
+                        .HasColumnType("longtext CHARACTER SET utf8mb4");
+
                     b.Property<string>("Email")
                         .HasColumnType("varchar(256) CHARACTER SET utf8mb4")
                         .HasMaxLength(256);
@@ -718,6 +687,8 @@ namespace AeroCar.Migrations
                         .HasName("UserNameIndex");
 
                     b.ToTable("AspNetUsers");
+
+                    b.HasDiscriminator<string>("Discriminator").HasValue("RegularUser");
                 });
 
             modelBuilder.Entity("Microsoft.AspNetCore.Identity.IdentityRole", b =>
@@ -852,6 +823,33 @@ namespace AeroCar.Migrations
                     b.ToTable("AspNetUserTokens");
                 });
 
+            modelBuilder.Entity("AeroCar.Models.Admin.AvioAdmin", b =>
+                {
+                    b.HasBaseType("AeroCar.Models.Users.RegularUser");
+
+                    b.Property<long>("AvioCompanyId")
+                        .HasColumnType("bigint");
+
+                    b.Property<bool>("SetUpPassword")
+                        .HasColumnType("tinyint(1)");
+
+                    b.HasDiscriminator().HasValue("AvioAdmin");
+                });
+
+            modelBuilder.Entity("AeroCar.Models.Admin.CarAdmin", b =>
+                {
+                    b.HasBaseType("AeroCar.Models.Users.RegularUser");
+
+                    b.Property<long>("CarCompanyId")
+                        .HasColumnType("bigint");
+
+                    b.Property<bool>("SetUpPassword")
+                        .HasColumnName("CarAdmin_SetUpPassword")
+                        .HasColumnType("tinyint(1)");
+
+                    b.HasDiscriminator().HasValue("CarAdmin");
+                });
+
             modelBuilder.Entity("AeroCar.Models.Avio.Aeroplane", b =>
                 {
                     b.HasOne("AeroCar.Models.Avio.AvioCompany", null)
@@ -870,10 +868,6 @@ namespace AeroCar.Migrations
 
             modelBuilder.Entity("AeroCar.Models.Avio.Flight", b =>
                 {
-                    b.HasOne("AeroCar.Models.Destination", "ArrivalLocation")
-                        .WithMany()
-                        .HasForeignKey("ArrivalLocationDestinationId");
-
                     b.HasOne("AeroCar.Models.Avio.AvioCompany", null)
                         .WithMany("Flights")
                         .HasForeignKey("AvioCompanyId")

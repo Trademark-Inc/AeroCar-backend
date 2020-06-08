@@ -33,7 +33,6 @@ namespace AeroCar.Repositories
             return await _context.Users.AsNoTracking().SingleOrDefaultAsync(u => u.UserName.Equals(username));
         }
 
-
         public async Task UpdateUser(RegularUser user)
         {
             _context.Users.Update(user);
@@ -46,7 +45,7 @@ namespace AeroCar.Repositories
 
             if (friends != null)
                 return await friends.ToListAsync();
-            else
+            else 
                 return null;
         }
 

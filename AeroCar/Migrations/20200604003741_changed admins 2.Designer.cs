@@ -3,14 +3,16 @@ using System;
 using AeroCar.Models;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore.Infrastructure;
+using Microsoft.EntityFrameworkCore.Migrations;
 using Microsoft.EntityFrameworkCore.Storage.ValueConversion;
 
 namespace AeroCar.Migrations
 {
     [DbContext(typeof(ApplicationDbContext))]
-    partial class ApplicationDbContextModelSnapshot : ModelSnapshot
+    [Migration("20200604003741_changed admins 2")]
+    partial class changedadmins2
     {
-        protected override void BuildModel(ModelBuilder modelBuilder)
+        protected override void BuildTargetModel(ModelBuilder modelBuilder)
         {
 #pragma warning disable 612, 618
             modelBuilder
@@ -139,9 +141,6 @@ namespace AeroCar.Migrations
                     b.Property<DateTime>("Arrival")
                         .HasColumnType("datetime(6)");
 
-                    b.Property<long?>("ArrivalLocationDestinationId")
-                        .HasColumnType("bigint");
-
                     b.Property<long>("AvioCompanyId")
                         .HasColumnType("bigint");
 
@@ -157,12 +156,10 @@ namespace AeroCar.Migrations
                     b.Property<double>("TravelDistance")
                         .HasColumnType("double");
 
-                    b.Property<double>("TravelTime")
-                        .HasColumnType("double");
+                    b.Property<long>("TravelTime")
+                        .HasColumnType("bigint");
 
                     b.HasKey("FlightId");
-
-                    b.HasIndex("ArrivalLocationDestinationId");
 
                     b.HasIndex("AvioCompanyId");
 
@@ -347,7 +344,7 @@ namespace AeroCar.Migrations
 
                     b.HasIndex("FlightId");
 
-                    b.ToTable("Destinations");
+                    b.ToTable("Destination");
                 });
 
             modelBuilder.Entity("AeroCar.Models.Rating.AvioCompanyRating", b =>
@@ -461,7 +458,7 @@ namespace AeroCar.Migrations
 
                     b.HasIndex("UserProfileId");
 
-                    b.ToTable("Friends");
+                    b.ToTable("Friend");
                 });
 
             modelBuilder.Entity("AeroCar.Models.Registration.Invitation", b =>
@@ -870,10 +867,6 @@ namespace AeroCar.Migrations
 
             modelBuilder.Entity("AeroCar.Models.Avio.Flight", b =>
                 {
-                    b.HasOne("AeroCar.Models.Destination", "ArrivalLocation")
-                        .WithMany()
-                        .HasForeignKey("ArrivalLocationDestinationId");
-
                     b.HasOne("AeroCar.Models.Avio.AvioCompany", null)
                         .WithMany("Flights")
                         .HasForeignKey("AvioCompanyId")

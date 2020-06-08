@@ -1,4 +1,5 @@
 ﻿using AeroCar.Models;
+using AeroCar.Models.DTO;
 using AeroCar.Models.Registration;
 using AeroCar.Models.Users;
 using AeroCar.Repositories;
@@ -31,7 +32,7 @@ namespace AeroCar.Services
 
         public bool IsCurrentUserAdmin()
         {
-            return _contextAccessor.HttpContext.User.IsInRole("Admin");
+            return _contextAccessor.HttpContext.User.IsInRole("SystemAdmin");
         }
 
         public string GetCurrentUserId()
@@ -60,6 +61,11 @@ namespace AeroCar.Services
         public async Task<RegularUser> GetUserById(string id)
         {
             return await _userRepository.GetUserById(id);
+        }
+
+        public async Task<RegularUser> GetUserByUsername(string username)
+        {
+            return await _userRepository.GetUserByUsername(username);
         }
 
         public async Task<RegularUser> GetUserByEmailAndPassword(string email, string password)
@@ -125,7 +131,7 @@ namespace AeroCar.Services
         {
             var user = await _userManager.FindByNameAsync(model.Username);
 
-            if (user.Status == UserStatus.Activated)
+            if (user != null && user.Status == UserStatus.Activated)
             {
                 var result = await _signInManager.PasswordSignInAsync(user, model.Password, false, false);
 
@@ -134,8 +140,14 @@ namespace AeroCar.Services
 
                 if (roles.Contains("RegularUser")) model.RedirectUrl = "";
                 else if (roles.Contains("SystemAdmin")) model.RedirectUrl = "/admin/system";
-                else if (roles.Contains("AvioAdmin")) model.RedirectUrl = "/admin/avio";
-                else if (roles.Contains("CarAdmin")) model.RedirectUrl = "/admin/car";
+                else if (roles.Contains("AvioAdmin"))
+                {
+                    model.RedirectUrl = "/admin/avio";
+                }
+                else if (roles.Contains("CarAdmin"))
+                {
+                    model.RedirectUrl = "/admin/car";
+                }
 
                 return result;
             }

@@ -8,6 +8,15 @@ namespace AeroCar.Models
 {
     public class Destination
     {
+        public Destination() { }
+     
+        public Destination(Destination item)
+        {
+            this.Latitude = item.Latitude;
+            this.Longitude = item.Longitude;
+            this.Name = item.Name;
+        }
+
         [Key]
         public long DestinationId { get; set; }
 
