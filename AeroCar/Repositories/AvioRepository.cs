@@ -1,5 +1,7 @@
 ﻿using AeroCar.Models;
 using AeroCar.Models.Avio;
+using AeroCar.Models.Rating;
+using AeroCar.Models.Reservation;
 using Microsoft.EntityFrameworkCore;
 using System;
 using System.Collections.Generic;
@@ -67,6 +69,74 @@ namespace AeroCar.Repositories
         public async Task<AvioCompanyProfile> GetCompanyProfile(long profileId)
         {
             return await _context.AvioCompanyProfiles.AsNoTracking().SingleOrDefaultAsync(acp => acp.AvioCompanyProfileId == profileId);
+        }
+
+        public async Task<List<AvioCompanyRating>> GetCompanyRatingsByCompanyId(long id)
+        {
+            return await _context.AvioCompanyRatings.AsNoTracking().Where(r => r.AvioCompanyId == id).ToListAsync();
+        }
+
+        public async Task<List<Flight>> GetFlightsByCompanyId(long id)
+        {
+            var company = await GetCompany(id);
+
+            if (company != null)
+            {
+                var flights = company.Flights;
+
+                if (flights != null)
+                    return flights;
+            }
+
+            return null;
+        }
+
+        public async Task<List<FlightRating>> GetFlightRatingsByCompanyId(long id)
+        {
+            var flights = await GetFlightsByCompanyId(id);
+
+            if (flights != null)
+            {
+                var flightRatings = new List<FlightRating>();
+
+                foreach (Flight f in flights)
+                {
+                    var ratings = await _context.FlightRatings.AsNoTracking().Where(fr => fr.FlightId == f.FlightId).ToListAsync();
+
+                    foreach (FlightRating r in ratings)
+                    {
+                        flightRatings.Add(r);
+                    }
+                }
+
+                return flightRatings;
+            }
+
+            return null;
+        }
+
+        public async Task<List<FlightReservation>> GetFlightReservationsByCompanyId(long id)
+        {
+            var flights = await GetFlightsByCompanyId(id);
+
+            if (flights != null)
+            {
+                var flightReservations = new List<FlightReservation>();
+
+                foreach (Flight f in flights)
+                {
+                    var reservations = await _context.FlightReservations.AsNoTracking().Where(fr => fr.FlightId == f.FlightId).ToListAsync();
+
+                    foreach (FlightReservation r in reservations)
+                    {
+                        flightReservations.Add(r);
+                    }
+                }
+
+                return flightReservations;
+            }
+
+            return null;
         }
 
         public async Task CreateCompany(AvioCompany company, AvioCompanyProfile profile)

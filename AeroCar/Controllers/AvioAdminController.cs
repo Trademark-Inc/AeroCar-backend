@@ -96,6 +96,35 @@ namespace AeroCar.Controllers
             return BadRequest("Not enough data provided.");
         }
 
+        // GET api/avioadmin/company/get/report
+        [HttpGet]
+        [Route("company/get/report")]
+        public async Task<IActionResult> GetCompanyReport()
+        {
+            if (ModelState.IsValid)
+            {
+                var user = await AvioAdminService.GetCurrentUser();
+
+                if (user != null)
+                {
+                    var avioCompany = await AvioService.GetCompany(user.AvioCompanyId);
+
+                    if (avioCompany != null)
+                    {
+                        var companyRating = await AvioService.GetAverageCompanyRating(avioCompany.AvioCompanyId);
+                        var flightRating = await AvioService.GetAverageFlightRating(avioCompany.AvioCompanyId);
+                        var graph = await AvioService.GetLastMonthsSoldTickets(avioCompany.AvioCompanyId, 6);
+                        var revenue = await AvioService.GetRevenue(avioCompany.AvioCompanyId);
+
+                        return Ok(new { companyRating, flightRating, graph, revenue });
+                    }
+                }
+            }
+
+            ModelState.AddModelError("", "Cannot retrieve user data.");
+            return BadRequest(ModelState);
+        }
+
         #region Flights
         // POST api/avioadmin/company/create/flight
         [HttpPost]

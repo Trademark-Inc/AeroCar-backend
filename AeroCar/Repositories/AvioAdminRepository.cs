@@ -1,5 +1,6 @@
 ﻿using AeroCar.Models;
 using AeroCar.Models.Admin;
+using AeroCar.Models.Rating;
 using AeroCar.Models.Users;
 using Microsoft.EntityFrameworkCore;
 using System;

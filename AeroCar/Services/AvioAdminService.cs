@@ -1,6 +1,7 @@
 ﻿using AeroCar.Models;
 using AeroCar.Models.Admin;
 using AeroCar.Models.DTO;
+using AeroCar.Models.Rating;
 using AeroCar.Models.Users;
 using AeroCar.Repositories;
 using AeroCar.Utility;

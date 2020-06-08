@@ -247,10 +247,11 @@ namespace AeroCar.Controllers
             if (ModelState.IsValid)
             {
                 var user = await _userService.GetCurrentUser();
-                
-                if (user != null)
+                var userRole = await _userService.GetCurrentUserRoles();
+
+                if (user != null && userRole != null)
                 {
-                    return Ok(new { user });
+                    return Ok(new { user, userRole });
                 }
             }
 
