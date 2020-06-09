@@ -8,6 +8,7 @@ namespace AeroCar.Models.DTO
 {
     public class UserRegistration
     {
+        [Required]
         public string Username { get; set; }
 
         public string Name { get; set; }

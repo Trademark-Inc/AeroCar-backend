@@ -1,4 +1,5 @@
-﻿using AeroCar.Models.Rating;
+﻿using AeroCar.Models.Car;
+using AeroCar.Models.Rating;
 using AeroCar.Repositories;
 using AeroCar.Utility;
 using System;
@@ -33,6 +34,11 @@ namespace AeroCar.Services
             }
 
             return 0;
+        }
+
+        public async Task RemoveVehicle(Vehicle v)
+        {
+            await _repository.RemoveVehicle(v);
         }
     }
 }

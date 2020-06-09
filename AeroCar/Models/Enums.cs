@@ -36,4 +36,10 @@ namespace AeroCar.Models
         Coupe,
         SUV
     }
+
+    public enum FlightType
+    {
+        OneWay,
+        RoundTrip
+    }
 }

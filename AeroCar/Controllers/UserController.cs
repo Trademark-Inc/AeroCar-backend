@@ -79,14 +79,14 @@ namespace AeroCar.Controllers
         [AllowAnonymous]
         [HttpGet]
         [Route("validate")]
-        public async Task<IActionResult> ValidateUser(string email, bool validate)
+        public async Task<IActionResult> ValidateUser(string username, bool validate, string email)
         {
             if (!ModelState.IsValid)
             {
                 return BadRequest(ModelState);
             }
 
-            var result = await _userService.ValidateUser(email, validate);
+            var result = await _userService.ValidateUser(username, validate, email);
 
             if (!result.Succeeded)
             {

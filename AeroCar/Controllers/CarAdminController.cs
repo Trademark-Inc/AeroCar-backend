@@ -2,7 +2,9 @@
 using System.Collections.Generic;
 using System.Linq;
 using System.Threading.Tasks;
+using AeroCar.Models;
 using AeroCar.Models.Car;
+using AeroCar.Models.DTO;
 using AeroCar.Models.DTO.Car;
 using AeroCar.Services;
 using Microsoft.AspNetCore.Authentication.JwtBearer;
@@ -49,6 +51,33 @@ namespace AeroCar.Controllers
                         var carCompanyProfile = await RentACarService.GetCompanyProfile(carCompany.CarCompanyProfileId);
 
                         return Ok(new { carCompany, carCompanyProfile });
+                    }
+                }
+            }
+
+            ModelState.AddModelError("", "Cannot retrieve user data.");
+            return BadRequest(ModelState);
+        }
+
+        // GET api/caradmin/company/get/report
+        [HttpGet]
+        [Route("company/get/report")]
+        public async Task<IActionResult> GetCompanyReport()
+        {
+            if (ModelState.IsValid)
+            {
+                var user = await CarAdminService.GetCurrentUser();
+
+                if (user != null)
+                {
+                    var carCompany = await RentACarService.GetCompany(user.CarCompanyId);
+
+                    if (carCompany != null)
+                    {
+                        var companyRating = await RentACarService.GetCompanyRatingAsInteger(carCompany.CarCompanyId);
+                        var graph = await RentACarService.GetLastMonthsCarReservations(carCompany.CarCompanyId, 6);
+
+                        return Ok(new { companyRating, graph });
                     }
                 }
             }
@@ -171,6 +200,145 @@ namespace AeroCar.Controllers
             }
 
             return BadRequest("Not enough data provided.");
+        }
+
+        // POST api/caradmin/company/remove/vehicle/{id}
+        [HttpPost]
+        [Route("company/remove/vehicle/{id}")]
+        public async Task<IActionResult> RemoveVehicle(long id)
+        {
+            if (ModelState.IsValid)
+            {
+                var user = await CarAdminService.GetCurrentUser();
+
+                if (user != null)
+                {
+                    var carCompany = await RentACarService.GetCompany(user.CarCompanyId);
+
+                    if (carCompany != null)
+                    {
+                        var vehicle = carCompany.Vehicles.Where(v => v.VehicleId == id).SingleOrDefault();
+
+                        if (vehicle != null)
+                        {
+                            await VehicleService.RemoveVehicle(vehicle);
+
+                            return Ok(200);
+                        }
+                    }
+                    else return BadRequest("Company wasn't found.");
+                }
+            }
+
+            return BadRequest("No sufficient data provided.");
+        }
+        #endregion
+
+        #region Offices
+        // GET api/caradmin/company/get/offices
+        [HttpGet]
+        [Route("company/get/offices")]
+        public async Task<IActionResult> GetCompanyOffices()
+        {
+            if (ModelState.IsValid)
+            {
+                var user = await CarAdminService.GetCurrentUser();
+
+                if (user != null)
+                {
+                    var carCompany = await RentACarService.GetCompany(user.CarCompanyId);
+
+                    if (carCompany != null)
+                    {
+                        var offices = carCompany.Offices;
+
+                        List<OfficeDTO> officeDTOs = new List<OfficeDTO>();
+                        foreach (Office o in offices)
+                        {
+                            officeDTOs.Add(new OfficeDTO()
+                            {
+                                Location = new DestinationDTO()
+                                {
+                                    Name = o.Location.Name,
+                                    Latitude = o.Location.Latitude,
+                                    Longitude = o.Location.Longitude
+                                },
+                                Address = o.Address,
+                                OfficeId = o.OfficeId
+                            });
+                        }
+
+                        return Ok(officeDTOs);
+                    }
+                }
+            }
+
+            ModelState.AddModelError("", "Cannot retrieve user data.");
+            return BadRequest(ModelState);
+        }
+
+        // POST api/caradmin/company/create/office
+        [HttpPost]
+        [Route("company/create/office")]
+        public async Task<IActionResult> CreateOffice([FromBody]OfficeRequest model)
+        {
+            if (ModelState.IsValid)
+            {
+                var user = await CarAdminService.GetCurrentUser();
+
+                if (user != null)
+                {
+                    var carCompany = await RentACarService.GetCompany(user.CarCompanyId);
+
+                    if (carCompany != null)
+                    {
+                        var office = new Office()
+                        {
+                            Address = model.Address,
+                            Location = new Destination() { Name = model.City },
+                            CarCompanyId = carCompany.CarCompanyId
+                        };
+
+                        carCompany.Offices.Add(office);
+                        await RentACarService.UpdateCompany(carCompany);
+
+                        return Ok(200);
+                    }
+                }
+            }
+
+            return BadRequest("Not enough data provided.");
+        }
+
+        // POST api/caradmin/company/remove/office/{id}
+        [HttpPost]
+        [Route("company/remove/office/{id}")]
+        public async Task<IActionResult> RemoveOffice(long id)
+        {
+            if (ModelState.IsValid)
+            {
+                var user = await CarAdminService.GetCurrentUser();
+
+                if (user != null)
+                {
+                    var carCompany = await RentACarService.GetCompany(user.CarCompanyId);
+
+                    if (carCompany != null)
+                    {
+                        var office = carCompany.Offices.Where(o => o.OfficeId == id).SingleOrDefault();
+
+                        if (office != null)
+                        {
+                            await OfficeService.RemoveOffice(office);
+
+                            return Ok(200);
+                        }
+                    }
+                    else return BadRequest("Company wasn't found.");
+                }
+            }
+
+            return BadRequest("No sufficient data provided.");
         }
         #endregion
     }

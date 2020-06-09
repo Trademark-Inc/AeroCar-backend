@@ -1,5 +1,7 @@
 ﻿using AeroCar.Models;
 using AeroCar.Models.Car;
+using AeroCar.Models.Rating;
+using AeroCar.Models.Reservation;
 using Microsoft.EntityFrameworkCore;
 using System;
 using System.Collections.Generic;
@@ -53,6 +55,36 @@ namespace AeroCar.Repositories
         public async Task<CarCompanyProfile> GetCompanyProfile(long profileId)
         {
             return await _context.CarCompanyProfiles.AsNoTracking().SingleOrDefaultAsync(ccp => ccp.CarCompanyProfileId == profileId);
+        }
+
+        public async Task<List<CarCompanyRating>> GetCompanyRatingsByCompanyId(long id)
+        {
+            return await _context.CarCompanyRatings.AsNoTracking().Where(r => r.CarCompanyId == id).ToListAsync();
+        }
+
+        public async Task<List<CarReservation>> GetCarReservationsByCompanyId(long id)
+        {
+            var company = await GetCompany(id);
+            var vehicles = company.Vehicles;
+
+            if (vehicles != null)
+            {
+                var carReservations = new List<CarReservation>();
+
+                foreach (Vehicle v in vehicles)
+                {
+                    var reservations = await _context.CarReservations.AsNoTracking().Where(fr => fr.VehicleId == v.VehicleId).ToListAsync();
+
+                    foreach (CarReservation r in reservations)
+                    {
+                        carReservations.Add(r);
+                    }
+                }
+
+                return carReservations;
+            }
+
+            return null;
         }
 
         public async Task CreateCompany(CarCompanyProfile profile)

@@ -103,15 +103,15 @@ namespace AeroCar.Services
             }
 
             EmailUtility.SendEmail(user.Email, "Profile Status", "Your profile is being verified." +
-                "\nPlease go to the following link to verify your account: http://localhost:62541/api/user/validate?email=" + user.Email + "&validate=true");
+                "\nPlease go to the following link to verify your account: http://localhost:62541/api/user/validate?user=" + user.UserName + "&validate=true&email=" + user.Email);
             user.Status = UserStatus.InProcess;
 
             return result;
         }
 
-        public async Task<IdentityResult> ValidateUser(string email, bool validate)
+        public async Task<IdentityResult> ValidateUser(string username, bool validate, string email)
         {
-            RegularUser applicationUser = await _userManager.FindByEmailAsync(email);
+            RegularUser applicationUser = await _userManager.FindByNameAsync(username);
             if (validate)
             {
                 EmailUtility.SendEmail(email, "Profile Status", "Your profile has been verified. Congratulations!");
