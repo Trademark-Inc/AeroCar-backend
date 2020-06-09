@@ -21,7 +21,7 @@ namespace AeroCar.Repositories
         {
             return await _context.CarCompanies
                 .Include(rc => rc.FastReservationCarTickets)
-                .Include(rc => rc.Offices)
+                .Include(rc => rc.Offices).ThenInclude(o => o.Location)
                 .Include(rc => rc.Vehicles).ToListAsync();
         }
 
@@ -29,7 +29,7 @@ namespace AeroCar.Repositories
         {
             return await _context.CarCompanies
                 .Include(rc => rc.FastReservationCarTickets)
-                .Include(rc => rc.Offices)
+                .Include(rc => rc.Offices).ThenInclude(o => o.Location)
                 .Include(rc => rc.Vehicles).AsNoTracking().SingleOrDefaultAsync(cc => cc.CarCompanyId == id);
         }
 
@@ -41,7 +41,7 @@ namespace AeroCar.Repositories
             {
                 return await _context.CarCompanies
                 .Include(rc => rc.FastReservationCarTickets)
-                .Include(rc => rc.Offices)
+                .Include(rc => rc.Offices).ThenInclude(o => o.Location)
                 .Include(rc => rc.Vehicles).AsNoTracking().SingleOrDefaultAsync(cc => cc.CarCompanyProfileId == profile.CarCompanyProfileId);
             }
             else
@@ -85,6 +85,18 @@ namespace AeroCar.Repositories
             }
 
             return false;
+        }
+
+        public async Task UpdateCompanyProfile(CarCompanyProfile profile)
+        {
+            _context.CarCompanyProfiles.Update(profile);
+            await _context.SaveChangesAsync();
+        }
+
+        public async Task UpdateCompany(CarCompany carCompany)
+        {
+            _context.CarCompanies.Update(carCompany);
+            await _context.SaveChangesAsync();
         }
     }
 }

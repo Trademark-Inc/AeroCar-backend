@@ -1,19 +1,13 @@
 ﻿using System;
 using System.Collections.Generic;
-using System.ComponentModel.DataAnnotations;
-using System.ComponentModel.DataAnnotations.Schema;
 using System.Linq;
 using System.Threading.Tasks;
 
-namespace AeroCar.Models.Car
+namespace AeroCar.Models.DTO.Car
 {
-    public class Vehicle
+    public class VehicleDTO
     {
-        [Key]
         public long VehicleId { get; set; }
-        
-        [ForeignKey("CarCompany.CarCompanyId")]
-        public long CarCompanyId { get; set; }
 
         public string Name { get; set; }
 
@@ -30,7 +24,9 @@ namespace AeroCar.Models.Car
         public string Transmission { get; set; }
 
         public string Additional { get; set; }
-        
+
         public double CostPerDay { get; set; }
+
+        public int Rating { get; set; }
     }
 }

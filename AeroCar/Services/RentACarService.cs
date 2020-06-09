@@ -53,5 +53,15 @@ namespace AeroCar.Services
             var result = await _rentACarRepository.RemoveCompany(id);
             return result;
         }
+
+        public async Task UpdateCompanyProfile(CarCompanyProfile carCompanyProfile)
+        {
+            await _rentACarRepository.UpdateCompanyProfile(carCompanyProfile);
+        }
+
+        public async Task UpdateCompany(CarCompany company)
+        {
+            await _rentACarRepository.UpdateCompany(company);
+        }
     }
 }

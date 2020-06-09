@@ -46,7 +46,7 @@ namespace AeroCar.Services
         public async Task<CarAdmin> GetCurrentUser()
         {
             var userId = await _userService.GetCurrentUser();
-            return await _carAdminRepository.GetAdmin(userId.Id);
+            return await _carAdminRepository.GetAdminById(userId.Id);
         }
 
         public async Task<RegularUser> GetAdminUser(string id)

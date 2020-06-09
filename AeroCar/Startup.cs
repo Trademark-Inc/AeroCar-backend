@@ -92,6 +92,12 @@ namespace AeroCar
             services.AddTransient<AvioAdminService>();
             services.AddTransient<AvioAdminRepository>();
 
+            services.AddTransient<VehicleService>();
+            services.AddTransient<VehicleRepository>();
+
+            services.AddTransient<OfficeService>();
+            services.AddTransient<OfficeRepository>();
+
             services.AddTransient<CarAdminService>();
             services.AddTransient<CarAdminRepository>();
 
