@@ -1,4 +1,6 @@
-﻿using Microsoft.AspNetCore.Identity;
+﻿using AeroCar.Models.Registration;
+using AeroCar.Models.Reservation;
+using Microsoft.AspNetCore.Identity;
 using System;
 using System.Collections.Generic;
 using System.ComponentModel.DataAnnotations.Schema;
@@ -22,6 +24,14 @@ namespace AeroCar.Models.Users
         public string City { get; set; }
 
         public UserStatus Status { get; set; }
+
+        public List<Friend> Friends { get; set; }
+
+        public List<FlightReservation> ReservedFlights { get; set; }
+
+        public List<CarReservation> ReservedCars { get; set; }
+
+        public int Bonus { get; set; }
 
     }
 }

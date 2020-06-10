@@ -17,6 +17,14 @@ namespace AeroCar.Repositories
             _context = context;
         }
 
+        public async Task<List<Flight>> GetAllFlights()
+        {
+            return await _context.Flights.AsNoTracking()
+                .Include(f => f.Transit)
+                .Include(f => f.ArrivalLocation)
+                .Include(f => f.DepartureLocation).ToListAsync();
+        }
+
         public async Task<List<Flight>> GetFlightsByCompanyId(long id)
         {
             return await _context.Flights.AsNoTracking()

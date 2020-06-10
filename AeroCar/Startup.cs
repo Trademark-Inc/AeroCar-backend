@@ -110,6 +110,9 @@ namespace AeroCar
             services.AddTransient<RentACarService>();
             services.AddTransient<RentACarRepository>();
 
+            services.AddTransient<ReservationService>();
+            services.AddTransient<ReservationRepository>();
+
             services.Configure<IdentityOptions>(options =>
             {
                 // Password settings.

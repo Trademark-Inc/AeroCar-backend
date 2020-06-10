@@ -20,13 +20,5 @@ namespace AeroCar.Models.Registration
         public string City { get; set; }
 
         public string Phone { get; set; }
-
-        public List<Friend> Friends { get; set; }
-
-        public List<FlightReservation> ReservedFlights { get; set; }
-
-        public List<CarReservation> ReservedCars { get; set; }
-
-        public int Bonus { get; set; }
     }
 }

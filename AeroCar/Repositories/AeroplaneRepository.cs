@@ -19,7 +19,7 @@ namespace AeroCar.Repositories
 
         public async Task<List<Aeroplane>> GetAllAeroplanes()
         {
-            return await _context.Aeroplanes.AsNoTracking().ToListAsync();
+            return await _context.Aeroplanes.Include(a => a.Seats).ThenInclude(s => s.DeletedSeats).AsNoTracking().ToListAsync();
         }
 
         public async Task<List<Aeroplane>> GetAeroplanesByCompanyId(long id)
@@ -30,12 +30,12 @@ namespace AeroCar.Repositories
 
         public async Task<Aeroplane> GetAeroplane(long id)
         {
-            return await _context.Aeroplanes.AsNoTracking().SingleOrDefaultAsync(a => a.AeroplaneId == id);
+            return await _context.Aeroplanes.Include(a => a.Seats).ThenInclude(s => s.DeletedSeats).AsNoTracking().SingleOrDefaultAsync(a => a.AeroplaneId == id);
         }
 
         public async Task<Aeroplane> GetAeroplaneByName(string name)
         {
-            return await _context.Aeroplanes.AsNoTracking().SingleOrDefaultAsync(a => a.Name == name);
+            return await _context.Aeroplanes.Include(a => a.Seats).ThenInclude(s => s.DeletedSeats).AsNoTracking().SingleOrDefaultAsync(a => a.Name == name);
         }
 
         public async Task AddAeroplane(Aeroplane a)

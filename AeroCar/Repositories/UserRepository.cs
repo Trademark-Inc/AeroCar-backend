@@ -20,17 +20,26 @@ namespace AeroCar.Repositories
 
         public async Task<RegularUser> GetUserById(string id)
         {
-            return await _context.Users.AsNoTracking().SingleOrDefaultAsync(u => u.Id.Equals(id));
+            return await _context.Users.Include(u => u.ReservedCars).ThenInclude(cr => cr.ReturnLocation)
+                                       .Include(u => u.ReservedCars).ThenInclude(cr => cr.PickUpLocation)
+                                       .Include(u => u.ReservedFlights).ThenInclude(cr => cr.PriceListItems)
+                                       .Include(u => u.Friends).AsNoTracking().SingleOrDefaultAsync(u => u.Id.Equals(id));
         }
 
         public async Task<RegularUser> GetUserByEmail(string email)
         {
-            return await _context.Users.AsNoTracking().SingleOrDefaultAsync(u => u.Email.Equals(email));
+            return await _context.Users.Include(u => u.ReservedCars).ThenInclude(cr => cr.ReturnLocation)
+                                       .Include(u => u.ReservedCars).ThenInclude(cr => cr.PickUpLocation)
+                                       .Include(u => u.ReservedFlights).ThenInclude(cr => cr.PriceListItems)
+                                       .Include(u => u.Friends).AsNoTracking().SingleOrDefaultAsync(u => u.Email.Equals(email));
         }
 
         public async Task<RegularUser> GetUserByUsername(string username)
         {
-            return await _context.Users.AsNoTracking().SingleOrDefaultAsync(u => u.UserName.Equals(username));
+            return await _context.Users.Include(u => u.ReservedCars).ThenInclude(cr => cr.ReturnLocation)
+                                       .Include(u => u.ReservedCars).ThenInclude(cr => cr.PickUpLocation)
+                                       .Include(u => u.ReservedFlights).ThenInclude(cr => cr.PriceListItems)
+                                       .Include(u => u.Friends).AsNoTracking().SingleOrDefaultAsync(u => u.UserName.Equals(username));
         }
 
         public async Task UpdateUser(RegularUser user)

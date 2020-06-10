@@ -1,4 +1,5 @@
-﻿using System;
+﻿using AeroCar.Models.Avio;
+using System;
 using System.Collections.Generic;
 using System.ComponentModel.DataAnnotations;
 using System.ComponentModel.DataAnnotations.Schema;
@@ -16,7 +17,7 @@ namespace AeroCar.Models.Reservation
         public long FlightId { get; set; }
 
         [ForeignKey("RegularUser.Id")]
-        public long UserId { get; set; }
+        public string UserId { get; set; }
 
         public string Name { get; set; }
 
@@ -25,6 +26,8 @@ namespace AeroCar.Models.Reservation
         public int SeatNumber { get; set; }
 
         public string Passport { get; set; }
+
+        public List<PriceListItem> PriceListItems { get; set; }
 
         public bool Invitation { get; set; }
 

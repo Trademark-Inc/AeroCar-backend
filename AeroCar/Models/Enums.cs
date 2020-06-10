@@ -22,6 +22,7 @@ namespace AeroCar.Models
 
     public enum StarRating
     {
+        Zero,
         One,
         Two,
         Three,
@@ -31,7 +32,7 @@ namespace AeroCar.Models
 
     public enum CarType
     {
-        HatchBack,
+        HatchBack = 1,
         Sedan,
         Coupe,
         SUV
@@ -39,7 +40,7 @@ namespace AeroCar.Models
 
     public enum FlightType
     {
-        OneWay,
+        OneWay = 1,
         RoundTrip
     }
 }
