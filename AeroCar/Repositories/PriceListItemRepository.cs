@@ -22,11 +22,6 @@ namespace AeroCar.Repositories
             return await _context.PriceListItems.AsNoTracking().ToListAsync();
         }
 
-        public async Task<List<PriceListItem>> GetPriceListItemsByCompanyId(long id)
-        {
-            return await _context.PriceListItems.AsNoTracking().Where(s => s.AvioCompanyId == id).ToListAsync();
-        }
-
         public async Task<PriceListItem> GetPriceListItem(long id)
         {
             return await _context.PriceListItems.AsNoTracking().SingleOrDefaultAsync(s => s.PriceListIdemId == id);

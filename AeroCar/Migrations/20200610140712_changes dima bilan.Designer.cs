@@ -3,14 +3,16 @@ using System;
 using AeroCar.Models;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore.Infrastructure;
+using Microsoft.EntityFrameworkCore.Migrations;
 using Microsoft.EntityFrameworkCore.Storage.ValueConversion;
 
 namespace AeroCar.Migrations
 {
     [DbContext(typeof(ApplicationDbContext))]
-    partial class ApplicationDbContextModelSnapshot : ModelSnapshot
+    [Migration("20200610140712_changes dima bilan")]
+    partial class changesdimabilan
     {
-        protected override void BuildModel(ModelBuilder modelBuilder)
+        protected override void BuildTargetModel(ModelBuilder modelBuilder)
         {
 #pragma warning disable 612, 618
             modelBuilder
@@ -177,7 +179,7 @@ namespace AeroCar.Migrations
                         .ValueGeneratedOnAdd()
                         .HasColumnType("bigint");
 
-                    b.Property<long?>("AvioCompanyId")
+                    b.Property<long>("AvioCompanyId")
                         .HasColumnType("bigint");
 
                     b.Property<long?>("FlightReservationId")
@@ -894,7 +896,9 @@ namespace AeroCar.Migrations
                 {
                     b.HasOne("AeroCar.Models.Avio.AvioCompany", null)
                         .WithMany("PriceList")
-                        .HasForeignKey("AvioCompanyId");
+                        .HasForeignKey("AvioCompanyId")
+                        .OnDelete(DeleteBehavior.Cascade)
+                        .IsRequired();
 
                     b.HasOne("AeroCar.Models.Reservation.FlightReservation", null)
                         .WithMany("PriceListItems")

@@ -15,14 +15,21 @@ namespace AeroCar.Controllers
     [ApiController]
     public class FlightController : ControllerBase
     {
-        public FlightController(FlightService flightService, AvioService avioService)
+        public FlightController(FlightService flightService, AvioService avioService, UserService userService, 
+            AeroplaneService aeroplaneService, SeatService seatService)
         {
             FlightService = flightService;
             AvioService = avioService;
+            UserService = userService;
+            AeroplaneService = aeroplaneService;
+            SeatService = seatService;
         }
 
         private readonly FlightService FlightService;
         private readonly AvioService AvioService;
+        private readonly UserService UserService;
+        private readonly AeroplaneService AeroplaneService;
+        private readonly SeatService SeatService;
 
         [HttpGet]
         [Route("{id}")]
@@ -74,6 +81,34 @@ namespace AeroCar.Controllers
                     var returnFlights = await FlightService.GetFlightsBySearch(model.Destination, model.Origin, model.Arrival, peopleCount);
                     
                     return Ok(new { outboundFlights, returnFlights });
+                }
+            }
+
+            return BadRequest(ModelState);
+        }
+
+        // GET api/flight/{id}/aeroplane
+        [HttpGet]
+        [Route("{id}/aeroplane")]
+        public async Task<IActionResult> GetFlightAeroplane(long id)
+        {
+            if (ModelState.IsValid)
+            {
+                var user = await UserService.GetCurrentUser();
+
+                if (user != null)
+                {
+                    var flight = await FlightService.GetFlight(id);
+
+                    if (flight != null)
+                    {
+                        var aeroplane = await AeroplaneService.GetAeroplane(flight.AeroplaneId);
+
+                        if (aeroplane != null)
+                        {
+                            return Ok(new { aeroplane });
+                        }
+                    }
                 }
             }
 

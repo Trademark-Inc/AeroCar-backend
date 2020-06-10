@@ -75,6 +75,28 @@ namespace AeroCar.Repositories
             await _context.SaveChangesAsync();
         }
 
+        public async Task<List<Invitation>> GetUserInvitations(string userId)
+        {
+            return await _context.Invitations.AsNoTracking().Where(i => i.ToUserId == userId).ToListAsync();
+        }
+
+        public async Task InviteToFlight(Invitation i)
+        {
+            _context.Invitations.Add(i);
+            await _context.SaveChangesAsync();
+        }
+
+        public async Task<Invitation> GetInvitation(long invitationId)
+        {
+            return await _context.Invitations.SingleOrDefaultAsync(i => i.InvitationId == invitationId);
+        }
+
+        public async Task RemoveInvitation(Invitation i)
+        {
+            _context.Invitations.Remove(i);
+            await _context.SaveChangesAsync();
+        }
+
         public async Task<int> Count()
         {
             return await _context.Users.AsNoTracking().CountAsync();

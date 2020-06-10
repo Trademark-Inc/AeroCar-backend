@@ -17,9 +17,35 @@ namespace AeroCar.Services
             _repository = r;
         }
 
+        public async Task<List<int>> GetTakenSeats(Flight f, Aeroplane a)
+        {
+            var reservations = await _repository.GetFlightReservationsByFlightId(f.FlightId);
+
+            List<int> takenSeats = new List<int>();
+            if (reservations != null)
+            {
+                foreach (FlightReservation fr in reservations)
+                {
+                    takenSeats.Add(fr.SeatNumber);
+                }
+            }
+
+            return takenSeats;
+        }
+
         public async Task UpdateFlightReservation(FlightReservation r)
         {
-            await _repository.UpdateFlightReservation(r);
+            if (r.Name != null && r.Name != "" &&
+                r.Surname != null && r.Surname != "" &&
+                r.Passport != null && r.Passport != "" &&
+                r.SeatNumber != -1) r.Finished = true;
+
+                await _repository.UpdateFlightReservation(r);
+        }
+
+        public async Task RemoveFlightReservation(FlightReservation r)
+        {
+            await _repository.RemoveFlightReservation(r);
         }
     }
 }
