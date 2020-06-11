@@ -3,6 +3,7 @@ using System.Collections.Generic;
 using System.Linq;
 using System.Threading.Tasks;
 using AeroCar.Models.Avio;
+using AeroCar.Models.DTO.Registration;
 using AeroCar.Models.DTO.Reservation;
 using AeroCar.Models.Reservation;
 using AeroCar.Services;
@@ -52,7 +53,11 @@ namespace AeroCar.Controllers
                     {
                         var selected = model.SelectedPriceListItems.SingleOrDefault(s => s.Id == p.PriceListIdemId && s.Selected);
                         if (selected != null)
-                            priceListItems.Add(p);
+                            priceListItems.Add(new PriceListItem() 
+                            { 
+                                Name = p.Name,
+                                Price = p.Price,
+                            });
                     }
 
                     var reservation = new FlightReservation()
@@ -62,7 +67,8 @@ namespace AeroCar.Controllers
                         Finished = false,
                         Invitation = false,
                         UserId = user.Id,
-                        PriceListItems = priceListItems
+                        PriceListItems = priceListItems,
+                        SeatNumber = -1,
                     };
 
                     user.ReservedFlights.Add(reservation);
@@ -119,6 +125,7 @@ namespace AeroCar.Controllers
                         reservation.Name = model.Name;
                         reservation.Surname = model.Surname;
                         reservation.Passport = model.Passport;
+
                         await ReservationService.UpdateFlightReservation(reservation);
 
                         return Ok(new { reservation });
@@ -152,10 +159,35 @@ namespace AeroCar.Controllers
             return BadRequest(ModelState);
         }
 
-        // GET api/reservation/flight/{id}/aeroplane
+        // GET api/reservation/flight/remove/{id}
         [HttpGet]
-        [Route("flight/{id}/aeroplane")]
-        public async Task<IActionResult> GetFlightAeroplane(long id)
+        [Route("flight/remove/{id}")]
+        public async Task<IActionResult> RemoveFlightReservation(long id)
+        {
+            if (ModelState.IsValid)
+            {
+                var user = await UserService.GetCurrentUser();
+
+                if (user != null)
+                {
+                    var reservation = user.ReservedFlights.SingleOrDefault(rf => rf.FlightReservationId == id);
+
+                    if (reservation != null)
+                    {
+                        await ReservationService.RemoveFlightReservation(reservation);
+
+                        return Ok(200);
+                    }
+                }
+            }
+
+            return BadRequest(ModelState);
+        }
+
+        // GET api/reservation/flight/{id}/seats/taken
+        [HttpGet]
+        [Route("flight/{id}/seats/taken")]
+        public async Task<IActionResult> GetFlightTakenSeats(long id)
         {
             if (ModelState.IsValid)
             {
@@ -171,13 +203,67 @@ namespace AeroCar.Controllers
 
                         if (aeroplane != null)
                         {
-                            return Ok(new { aeroplane });
+                            var takenSeats = await ReservationService.GetTakenSeats(flight, aeroplane);
+
+                            return Ok(new { takenSeats });
                         }
                     }
                 }
             }
 
             return BadRequest(ModelState);
+        }
+
+        // POST api/reservation/flight/invite
+        [HttpPost]
+        [Route("flight/invite")]
+        public async Task<IActionResult> FlightInvitation([FromBody]InvitationDTO model)
+        {
+            if (ModelState.IsValid)
+            {
+                var user = await UserService.GetCurrentUser();
+
+                if (user != null)
+                {
+                    var reservation = user.ReservedFlights.SingleOrDefault(rf => rf.FlightReservationId == model.Id);
+
+                    if (reservation != null)
+                    {
+                        var flight = await FlightService.GetFlight(reservation.FlightId);
+
+                        if (flight != null)
+                        {
+                            var successfull = await UserService.InviteToFlight(model.FlightId, model.FriendUsername);
+
+                            if (successfull)
+                                return Ok(200);
+                            else
+                                return BadRequest("Friend not found!");
+                        }
+                    }
+                }
+            }
+
+            return BadRequest("Not enough data provided.");
+        }
+
+        // POST api/reservation/flight/invite/response
+        [HttpPost]
+        [Route("flight/invite/response")]
+        public async Task<IActionResult> FlightInvitationResponse([FromBody]InvitationResponseDTO model)
+        {
+            if (ModelState.IsValid)
+            {
+                var user = await UserService.GetCurrentUser();
+
+                if (user != null)
+                {
+                    await UserService.AcceptInvitation(model.InvitationId, model.Accepted);
+                    return Ok(200);
+                }
+            }
+
+            return BadRequest("Not enough data provided.");
         }
     }
 }

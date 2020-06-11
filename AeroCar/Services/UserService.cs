@@ -103,7 +103,7 @@ namespace AeroCar.Services
             }
 
             EmailUtility.SendEmail(user.Email, "Profile Status", "Your profile is being verified." +
-                "\nPlease go to the following link to verify your account: http://localhost:62541/api/user/validate?user=" + user.UserName + "&validate=true&email=" + user.Email);
+                "\nPlease go to the following link to verify your account: http://localhost:62541/api/user/validate?username=" + user.UserName + "&validate=true&email=" + user.Email);
             user.Status = UserStatus.InProcess;
 
             return result;
@@ -173,6 +173,10 @@ namespace AeroCar.Services
         public async Task AddFriend(RegularUser user, string friendUsername)
         {
             var friend = await GetUserByUsername(friendUsername);
+            var friends = await GetUserFriends(user.Id);
+
+            var exists = friends.SingleOrDefault(f => f.FriendId == friend.Id) != null;
+            if (exists) return;
 
             await _userRepository.AddFriend(new Friend() { FriendId = friend.Id, UserId = user.Id });
         }
@@ -182,6 +186,48 @@ namespace AeroCar.Services
             var friend = await GetUserByUsername(friendUsername);
 
             await _userRepository.RemoveFriend(await _userRepository.GetUserFriend(user.Id, friend.Id));
+        }
+
+        public async Task<List<Invitation>> GetUserInvitations(string userId)
+        {
+            return await _userRepository.GetUserInvitations(userId);
+        }
+
+        public async Task<bool> InviteToFlight(long flightId, string friendUsername)
+        {
+            var user = await GetCurrentUser();
+            var friends = await GetUserFriends(user.Id);
+
+            var friend = await GetUserByUsername(friendUsername);
+            if (friend != null)
+            {
+                var exists = friends.SingleOrDefault(f => f.FriendId == friend.Id) != null;
+
+                if (exists)
+                {
+                    var invitation = new Invitation()
+                    {
+                        FlightId = flightId,
+                        FromUserId = user.Id,
+                        ToUserId = friend.Id,
+                        SentDate = DateTime.Now,
+                        Accepted = false
+                    };
+
+                    await _userRepository.InviteToFlight(invitation);
+                    return true;
+                }
+            }
+
+            return false;
+        }
+
+        public async Task AcceptInvitation(long invitationId, bool accept)
+        {
+            var user = await GetCurrentUser();
+            var invitation = await _userRepository.GetInvitation(invitationId);
+
+            await _userRepository.RemoveInvitation(invitation);
         }
     }
 }

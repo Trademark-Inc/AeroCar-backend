@@ -1,5 +1,6 @@
 ﻿using AeroCar.Models;
 using AeroCar.Models.Reservation;
+using Microsoft.EntityFrameworkCore;
 using System;
 using System.Collections.Generic;
 using System.Linq;
@@ -16,9 +17,21 @@ namespace AeroCar.Repositories
             _context = context;
         }
 
+        public async Task<List<FlightReservation>> GetFlightReservationsByFlightId(long id)
+        {
+            var reservations = await _context.FlightReservations.Include(fr => fr.PriceListItems).AsNoTracking().Where(fr => fr.FlightId == id).ToListAsync();
+            return reservations;
+        }
+
         public async Task UpdateFlightReservation(FlightReservation r)
         {
             _context.FlightReservations.Update(r);
+            await _context.SaveChangesAsync();
+        }
+
+        public async Task RemoveFlightReservation(FlightReservation r)
+        {
+            _context.FlightReservations.Remove(r);
             await _context.SaveChangesAsync();
         }
     }

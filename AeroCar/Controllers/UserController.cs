@@ -31,11 +31,13 @@ namespace AeroCar.Controllers
     {
         private readonly IConfiguration _configuration;
         private readonly UserService _userService;
+        private readonly FlightService _flightService;
 
-        public UserController(UserService userService, IConfiguration configuration)
+        public UserController(UserService userService, FlightService flightService, IConfiguration configuration)
         {
             _userService = userService;
             _configuration = configuration;
+            _flightService = flightService;
         }
 
         // POST api/user/register
@@ -237,6 +239,43 @@ namespace AeroCar.Controllers
             }
 
             return BadRequest("No username provided.");
+        }
+
+        [HttpGet]
+        [Route("flight/invitations")]
+        public async Task<IActionResult> GetUserInvitations()
+        {
+            var user = await _userService.GetCurrentUser();
+
+            if (user != null)
+            {
+                var invitations = await _userService.GetUserInvitations(user.Id);
+
+                if (invitations != null)
+                {
+                    List<InvitationDTO> flightInvitations = new List<InvitationDTO>();
+                    
+                    foreach (Invitation i in invitations)
+                    {
+                        var fromUser = await _userService.GetUserById(i.FromUserId);
+                        var flight = await _flightService.GetFlight(i.FlightId);
+
+                        flightInvitations.Add(new InvitationDTO()
+                        {
+                            FlightId = i.FlightId,
+                            FriendUsername = fromUser.UserName,
+                            Id = i.InvitationId,
+                            FlightDestination = flight.ArrivalLocation.Name
+                        });
+                    }
+
+                    return Ok(new { flightInvitations });
+                }
+
+                return BadRequest("Invitations not found!");
+            }
+
+            return BadRequest("User not found.");
         }
 
         // GET api/user/current

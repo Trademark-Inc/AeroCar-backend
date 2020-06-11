@@ -12,9 +12,6 @@ namespace AeroCar.Models.Avio
         [Key]
         public long PriceListIdemId { get; set; }
 
-        [ForeignKey("AvioCompany.AvioCompanyId")]
-        public long AvioCompanyId { get; set; }
-
         public string Name { get; set; }
 
         public double Price { get; set; }

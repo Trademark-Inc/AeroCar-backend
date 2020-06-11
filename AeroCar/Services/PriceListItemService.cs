@@ -21,11 +21,6 @@ namespace AeroCar.Services
             return await _repository.GetAllPriceListItems();
         }
 
-        public async Task<List<PriceListItem>> GetPriceListItemsByCompanyId(long id)
-        {
-            return await _repository.GetPriceListItemsByCompanyId(id);
-        }
-
         public async Task<PriceListItem> GetPriceListItem(long id)
         {
             return await _repository.GetPriceListItem(id);
