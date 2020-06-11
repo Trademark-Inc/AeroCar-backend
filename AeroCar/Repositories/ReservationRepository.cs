@@ -34,5 +34,11 @@ namespace AeroCar.Repositories
             _context.FlightReservations.Remove(r);
             await _context.SaveChangesAsync();
         }
+
+        public async Task RemoveCarReservation(CarReservation r)
+        {
+            _context.CarReservations.Remove(r);
+            await _context.SaveChangesAsync();
+        }
     }
 }

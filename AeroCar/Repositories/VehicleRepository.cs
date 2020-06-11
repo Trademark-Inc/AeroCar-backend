@@ -18,6 +18,16 @@ namespace AeroCar.Repositories
             _context = context;
         }
 
+        public async Task<List<Vehicle>> GetAllVehicles()
+        {
+            return await _context.Vehicles.AsNoTracking().ToListAsync();
+        }
+
+        public async Task<Vehicle> GetVehicleById(long id)
+        {
+            return await _context.Vehicles.AsNoTracking().SingleOrDefaultAsync(v => v.VehicleId == id);
+        }
+
         public async Task<List<VehicleRating>> GetRatingsByVehicleId(long id)
         {
             return await _context.CarRatings.AsNoTracking().Where(cr => cr.VehicleId == id).ToListAsync();
