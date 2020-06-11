@@ -13,10 +13,13 @@ namespace AeroCar.Models.Avio
         [Key]
         public long AvioCompanyProfileId { get; set; }
 
+        [Required]
         public string Name { get; set; }
 
+        [Required]
         public string Address { get; set; }
 
+        [Required]
         public string PromoDescription { get; set; }
     }
 }

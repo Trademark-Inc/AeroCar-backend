@@ -90,7 +90,11 @@ namespace AeroCar.Controllers
                         await AvioService.UpdateCompanyProfile(avioCompanyProfile);
                         return Ok(200);
                     }
-                } 
+
+                    return BadRequest("Avio company not found.");
+                }
+
+                return Unauthorized("You must log in as an administrator of this company.");
             }
 
             return BadRequest("Not enough data provided.");
@@ -167,7 +171,11 @@ namespace AeroCar.Controllers
 
                         return Ok(200);
                     }
+
+                    return BadRequest("Avio company not found.");
                 }
+
+                return Unauthorized("You must log in as an administrator of this company.");
             }
 
             return BadRequest("Not enough data provided.");
@@ -196,9 +204,14 @@ namespace AeroCar.Controllers
 
                             return Ok(200);
                         }
+
+                        return NotFound("Flight not found.");
                     }
-                    else return BadRequest("Company wasn't found.");
+                    
+                    return BadRequest("Company wasn't found.");
                 }
+
+                return Unauthorized("You must log in as an administrator of this company.");
             }
 
             return BadRequest("No sufficient data provided.");
@@ -234,7 +247,11 @@ namespace AeroCar.Controllers
 
                         return Ok(200);
                     }
+
+                    return BadRequest("Company wasn't found.");
                 }
+
+                return Unauthorized("You must log in as an administrator of this company.");
             }
 
             return BadRequest("Not enough data provided.");
@@ -263,6 +280,8 @@ namespace AeroCar.Controllers
 
                             return Ok(200);
                         }
+
+                        return NotFound("Ticket not found.");
                     }
                     else return BadRequest("Company wasn't found.");
                 }
@@ -299,7 +318,11 @@ namespace AeroCar.Controllers
 
                         return Ok(200);
                     }
+
+                    return BadRequest("Company wasn't found.");
                 }
+
+                return Unauthorized("You must log in as an administrator of this company.");
             }
 
             return BadRequest("Not enough data provided.");
@@ -328,9 +351,14 @@ namespace AeroCar.Controllers
 
                             return Ok(200);
                         }
+
+                        return NotFound("Item not found.");
                     }
-                    else return BadRequest("Company wasn't found.");
+
+                    return BadRequest("Company wasn't found.");
                 }
+
+                return Unauthorized("You must log in as an administrator of this company.");
             }
 
             return BadRequest("No sufficient data provided.");
