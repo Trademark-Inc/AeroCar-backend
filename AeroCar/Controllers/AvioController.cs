@@ -108,7 +108,7 @@ namespace AeroCar.Controllers
                 avioCompanyProfileDTO.Address = companyProfile.Address;
                 avioCompanyProfileDTO.Description = companyProfile.PromoDescription;
                 avioCompanyProfileDTO.Destinations = allDestinations;
-                avioCompanyProfileDTO.DestinationsList = destinationList;
+                avioCompanyProfileDTO.DestinationList = destinationList;
 
                 return Ok(new { avioCompanyProfileDTO });
             }

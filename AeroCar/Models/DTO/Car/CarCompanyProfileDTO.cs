@@ -1,11 +1,12 @@
-﻿using System;
+﻿using AeroCar.Models.Car;
+using System;
 using System.Collections.Generic;
 using System.Linq;
 using System.Threading.Tasks;
 
-namespace AeroCar.Models.DTO.Avio
+namespace AeroCar.Models.DTO.Car
 {
-    public class AvioCompanyProfileDTO
+    public class CarCompanyProfileDTO
     {
         public long Id { get; set; }
 
@@ -17,10 +18,12 @@ namespace AeroCar.Models.DTO.Avio
 
         public string Address { get; set; }
 
-        public string Destinations { get; set; }
-
         public string Description { get; set; }
 
-        public List<Destination> DestinationList { get; set; }
+        public string Offices { get; set; }
+
+        public List<Office> OfficeList { get; set; }
+
+        public List<VehicleDTO> VehicleList { get; set; }
     }
 }
