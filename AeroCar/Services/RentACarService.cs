@@ -57,6 +57,22 @@ namespace AeroCar.Services
             return (int) (sum / ratings.Count);
         }
 
+        public async Task<Double> GetCompanyRatingAsDouble(long id)
+        {
+            var ratings = await _rentACarRepository.GetCompanyRatingsByCompanyId(id);
+
+            if (ratings == null) return 0;
+            if (ratings.Count == 0) return 0;
+
+            double sum = 0;
+            foreach (CarCompanyRating r in ratings)
+            {
+                sum += EnumsUtility.GetStarRatingAsDouble(r.Rate);
+            }
+
+            return sum / ratings.Count;
+        }
+
         public async Task<List<GraphDTO>> GetLastMonthsCarReservations(long id, int numberOfMonths)
         {
             var reservations = await _rentACarRepository.GetCarReservationsByCompanyId(id);

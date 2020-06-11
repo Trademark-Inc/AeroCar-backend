@@ -12,5 +12,7 @@ namespace AeroCar.Models.DTO.Car
         public DestinationDTO Location { get; set; }
 
         public string Address { get; set; }
+
+        public string Additional { get; set; }
     }
 }
