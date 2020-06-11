@@ -9,7 +9,9 @@ using System.Threading.Tasks;
 using AeroCar.Models;
 using AeroCar.Models.DTO;
 using AeroCar.Models.DTO.Registration;
+using AeroCar.Models.DTO.Reservation;
 using AeroCar.Models.Registration;
+using AeroCar.Models.Reservation;
 using AeroCar.Models.Users;
 using AeroCar.Services;
 using AeroCar.Utility;
@@ -32,12 +34,21 @@ namespace AeroCar.Controllers
         private readonly IConfiguration _configuration;
         private readonly UserService _userService;
         private readonly FlightService _flightService;
+        private readonly VehicleService _vehicleService;
+        private readonly ReservationService _reservationService;
+        private readonly AvioService _avioService;
+        private readonly RentACarService _rentACarService;
 
-        public UserController(UserService userService, FlightService flightService, IConfiguration configuration)
+        public UserController(UserService userService, FlightService flightService, ReservationService reservationService, 
+            AvioService avioService, VehicleService vehicleService, RentACarService rentACarService, IConfiguration configuration)
         {
             _userService = userService;
             _configuration = configuration;
             _flightService = flightService;
+            _reservationService = reservationService;
+            _avioService = avioService;
+            _vehicleService = vehicleService;
+            _rentACarService = rentACarService;
         }
 
         // POST api/user/register
@@ -273,6 +284,220 @@ namespace AeroCar.Controllers
                 }
 
                 return BadRequest("Invitations not found!");
+            }
+
+            return BadRequest("User not found.");
+        }
+
+        [HttpGet]
+        [Route("history/flights")]
+        public async Task<IActionResult> GetFlightsHistory()
+        {
+            var user = await _userService.GetCurrentUser();
+
+            if (user != null)
+            {
+                var reservations = user.ReservedFlights;
+
+                if (reservations != null)
+                {
+                    List<FlightHistoryDTO> flightsHistory = new List<FlightHistoryDTO>();
+
+                    foreach (FlightReservation fr in reservations)
+                    {
+                        var flight = await _flightService.GetFlight(fr.FlightId);
+
+                        if (flight != null)
+                        {
+                            if (DateTime.Now > (flight.Departure.AddHours(-3)))
+                            {
+                                var company = await _avioService.GetCompany(flight.AvioCompanyId);
+
+                                if (company != null)
+                                {
+                                    var companyProfile = await _avioService.GetCompanyProfile(company.AvioCompanyProfileId);
+
+                                    if (companyProfile != null)
+                                    {
+                                        flightsHistory.Add(new FlightHistoryDTO()
+                                        {
+                                            DepartureLocation = flight.DepartureLocation,
+                                            ArrivalLocation = flight.ArrivalLocation,
+                                            Departure = flight.Departure,
+                                            AvioCompanyName = companyProfile.Name
+                                        });
+                                    }
+                                }
+                            }
+                        }
+                    }
+
+                    return Ok(new { flightsHistory });
+                }
+
+                return BadRequest("No reservations found!");
+            }
+
+            return BadRequest("User not found.");
+        }
+
+        [HttpGet]
+        [Route("history/cars")]
+        public async Task<IActionResult> GetCarsHistory()
+        {
+            var user = await _userService.GetCurrentUser();
+
+            if (user != null)
+            {
+                var reservations = user.ReservedCars;
+
+                if (reservations != null)
+                {
+                    List<CarHistoryDTO> carsHistory = new List<CarHistoryDTO>();
+
+                    foreach (CarReservation cr in reservations)
+                    {
+                        if (DateTime.Now > (cr.PickUpDate.AddDays(-2)))
+                        {
+                            var vehicle = await _vehicleService.GetVehicleById(cr.VehicleId);
+
+                            if (vehicle != null)
+                            {
+                                var company = await _rentACarService.GetCompany(vehicle.CarCompanyId);
+
+                                if (company != null)
+                                {
+                                    var companyProfile = await _rentACarService.GetCompanyProfile(company.CarCompanyProfileId);
+
+                                    if (companyProfile != null)
+                                    {
+                                        carsHistory.Add(new CarHistoryDTO()
+                                        {
+                                            CarCompanyName = companyProfile.Name,
+                                            VehicleName = vehicle.Name,
+                                            PickUpDate = cr.PickUpDate,
+                                            ReturnDate = cr.ReturnDate,
+                                            PickUpLocation = cr.PickUpLocation.Name,
+                                            ReturnLocation = cr.ReturnLocation.Name
+                                        });
+                                    }
+                                }
+                            }
+                        }
+                    }
+
+                    return Ok(new { carsHistory });
+                }
+
+                return BadRequest("No car reservations found!");
+            }
+
+            return BadRequest("User not found.");
+        }
+
+        [HttpGet]
+        [Route("reservations/flights")]
+        public async Task<IActionResult> GetFlightsTerminableReservations()
+        {
+            var user = await _userService.GetCurrentUser();
+
+            if (user != null)
+            {
+                var reservations = user.ReservedFlights;
+
+                if (reservations != null)
+                {
+                    List<FlightHistoryDTO> flightsHistory = new List<FlightHistoryDTO>();
+
+                    foreach (FlightReservation fr in reservations)
+                    {
+                        var flight = await _flightService.GetFlight(fr.FlightId);
+
+                        if (flight != null)
+                        {
+                            if (DateTime.Now <= (flight.Departure.AddHours(-3)))
+                            {
+                                var company = await _avioService.GetCompany(flight.AvioCompanyId);
+
+                                if (company != null)
+                                {
+                                    var companyProfile = await _avioService.GetCompanyProfile(company.AvioCompanyProfileId);
+
+                                    if (companyProfile != null)
+                                    {
+                                        flightsHistory.Add(new FlightHistoryDTO()
+                                        {
+                                            ReservationId = fr.FlightReservationId,
+                                            DepartureLocation = flight.DepartureLocation,
+                                            ArrivalLocation = flight.ArrivalLocation,
+                                            Departure = flight.Departure,
+                                            AvioCompanyName = companyProfile.Name
+                                        });
+                                    }
+                                }
+                            }
+                        }
+                    }
+
+                    return Ok(new { flightsHistory });
+                }
+
+                return BadRequest("No reservations found!");
+            }
+
+            return BadRequest("User not found.");
+        }
+
+        [HttpGet]
+        [Route("reservations/cars")]
+        public async Task<IActionResult> GetCarsTerminableReservations()
+        {
+            var user = await _userService.GetCurrentUser();
+
+            if (user != null)
+            {
+                var reservations = user.ReservedCars;
+
+                if (reservations != null)
+                {
+                    List<CarHistoryDTO> carsHistory = new List<CarHistoryDTO>();
+
+                    foreach (CarReservation cr in reservations)
+                    {
+                        if (DateTime.Now <= (cr.PickUpDate.AddDays(-2)))
+                        {
+                            var vehicle = await _vehicleService.GetVehicleById(cr.VehicleId);
+
+                            if (vehicle != null)
+                            {
+                                var company = await _rentACarService.GetCompany(vehicle.CarCompanyId);
+
+                                if (company != null)
+                                {
+                                    var companyProfile = await _rentACarService.GetCompanyProfile(company.CarCompanyProfileId);
+
+                                    if (companyProfile != null)
+                                    {
+                                        carsHistory.Add(new CarHistoryDTO()
+                                        {
+                                            ReservationId = cr.CarReservationId,
+                                            CarCompanyName = companyProfile.Name,
+                                            VehicleName = vehicle.Name,
+                                            PickUpDate = cr.PickUpDate,
+                                            ReturnDate = cr.ReturnDate,
+                                            PickUpLocation = cr.PickUpLocation.Name,
+                                            ReturnLocation = cr.ReturnLocation.Name
+                                        });
+                                    }
+                                }
+                            }
+                        }
+                    }
+
+                    return Ok(new { carsHistory });
+                }
+
+                return BadRequest("No car reservations found!");
             }
 
             return BadRequest("User not found.");

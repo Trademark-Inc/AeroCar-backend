@@ -2,13 +2,16 @@
 using System.Collections.Generic;
 using System.Linq;
 using System.Threading.Tasks;
+using AeroCar.Models;
 using AeroCar.Models.Avio;
 using AeroCar.Models.DTO.Registration;
 using AeroCar.Models.DTO.Reservation;
 using AeroCar.Models.Reservation;
 using AeroCar.Services;
+using GeoCoordinatePortable;
 using Microsoft.AspNetCore.Authentication.JwtBearer;
 using Microsoft.AspNetCore.Authorization;
+using Microsoft.AspNetCore.Components.Server;
 using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Mvc;
 
@@ -34,6 +37,70 @@ namespace AeroCar.Controllers
         private readonly AvioService AvioService;
         private readonly ReservationService ReservationService;
         private readonly AeroplaneService AeroplaneService;
+
+        // POST api/reservation/car
+        [HttpPost]
+        [Route("car")]
+        public async Task<IActionResult> CarReservation([FromBody]CarReservationDTO model)
+        {
+            if (ModelState.IsValid)
+            {
+                var user = await UserService.GetCurrentUser();
+
+                if (user != null)
+                {
+                    var pickUpTime = DateTime.ParseExact(model.ReservationDetails.PickUpTime, "H:mm", null, System.Globalization.DateTimeStyles.None);
+                    var returnTime = DateTime.ParseExact(model.ReservationDetails.ReturnTime, "H:mm", null, System.Globalization.DateTimeStyles.None);
+                    var reservation = new CarReservation()
+                    {
+                        PickUpDate = model.ReservationDetails.PickUpDate.Add(pickUpTime.TimeOfDay),
+                        PickUpLocation = new Destination()
+                        {
+                            Name = model.ReservationDetails.PickUpLocation
+                        },
+                        ReturnDate = model.ReservationDetails.ReturnDate.Add(returnTime.TimeOfDay),
+                        ReturnLocation = new Destination()
+                        {
+                            Name = model.ReservationDetails.ReturnLocation,
+                        },
+                        VehicleId = model.VehicleId,
+                        Finished = true
+                    };
+
+                    user.ReservedCars.Add(reservation);
+                    await UserService.UpdateUser(user);
+
+                    return Ok(200);
+                }
+            }
+
+            return BadRequest(ModelState);
+        }
+
+        // GET api/reservation/flight/remove/{id}
+        [HttpGet]
+        [Route("car/remove/{id}")]
+        public async Task<IActionResult> RemoveCarReservation(long id)
+        {
+            if (ModelState.IsValid)
+            {
+                var user = await UserService.GetCurrentUser();
+
+                if (user != null)
+                {
+                    var reservation = user.ReservedCars.SingleOrDefault(rc => rc.CarReservationId == id);
+
+                    if (reservation != null)
+                    {
+                        await ReservationService.RemoveCarReservation(reservation);
+
+                        return Ok(200);
+                    }
+                }
+            }
+
+            return BadRequest(ModelState);
+        }
 
         // POST api/reservation/flight/step/1
         [HttpPost]
@@ -96,8 +163,25 @@ namespace AeroCar.Controllers
 
                     if (reservation != null)
                     {
+                        bool finished = true;
+                        if (!reservation.Finished)
+                        {
+                            finished = false;
+                        }
+
                         reservation.SeatNumber = model.Seat;
                         await ReservationService.UpdateFlightReservation(reservation);
+
+                        if (!finished && reservation.Finished)
+                        {
+                            var flight = await FlightService.GetFlight(reservation.FlightId);
+
+                            var sCoord = new GeoCoordinate(flight.DepartureLocation.Latitude, flight.DepartureLocation.Longitude);
+                            var eCoord = new GeoCoordinate(flight.ArrivalLocation.Latitude, flight.ArrivalLocation.Longitude);
+
+                            user.Bonus += (int)(sCoord.GetDistanceTo(eCoord) / 100000);
+                            await UserService.UpdateUser(user);
+                        }
 
                         return Ok(new { reservation });
                     }
@@ -126,7 +210,24 @@ namespace AeroCar.Controllers
                         reservation.Surname = model.Surname;
                         reservation.Passport = model.Passport;
 
+                        bool finished = true;
+                        if (!reservation.Finished)
+                        {
+                            finished = false;
+                        }
+
                         await ReservationService.UpdateFlightReservation(reservation);
+
+                        if (!finished && reservation.Finished)
+                        {
+                            var flight = await FlightService.GetFlight(reservation.FlightId);
+
+                            var sCoord = new GeoCoordinate(flight.DepartureLocation.Latitude, flight.DepartureLocation.Longitude);
+                            var eCoord = new GeoCoordinate(flight.ArrivalLocation.Latitude, flight.ArrivalLocation.Longitude);
+
+                            user.Bonus += (int) (sCoord.GetDistanceTo(eCoord) / 100000);
+                            await UserService.UpdateUser(user);
+                        }
 
                         return Ok(new { reservation });
                     }

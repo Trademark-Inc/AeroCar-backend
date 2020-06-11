@@ -38,14 +38,22 @@ namespace AeroCar.Services
             if (r.Name != null && r.Name != "" &&
                 r.Surname != null && r.Surname != "" &&
                 r.Passport != null && r.Passport != "" &&
-                r.SeatNumber != -1) r.Finished = true;
+                r.SeatNumber != -1)
+            {
+                r.Finished = true;
+            }
 
-                await _repository.UpdateFlightReservation(r);
+            await _repository.UpdateFlightReservation(r);
         }
 
         public async Task RemoveFlightReservation(FlightReservation r)
         {
             await _repository.RemoveFlightReservation(r);
+        }
+
+        public async Task RemoveCarReservation(CarReservation r)
+        {
+            await _repository.RemoveCarReservation(r);
         }
     }
 }

@@ -16,9 +16,6 @@ namespace AeroCar.Models.Reservation
         [ForeignKey("Vehicle.VehicleId")]
         public long VehicleId { get; set; }
 
-        [ForeignKey("RegularUser.Id")]
-        public string UserId { get; set; }
-
         public DateTime PickUpDate { get; set; }
 
         public Destination PickUpLocation { get; set; }

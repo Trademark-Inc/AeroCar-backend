@@ -75,6 +75,40 @@ namespace AeroCar.Controllers
 
                 return Ok(new { carCompanyProfileDTOList });
             }
+            ModelState.AddModelError("", "Cannot retrieve user data.");
+            return BadRequest(ModelState);
+        }
+
+        [AllowAnonymous]
+        [HttpGet]
+        [Route("search")]
+        public async Task<IActionResult> SearchCars([FromQuery]CarSearch model)
+        {
+            if (ModelState.IsValid)
+            {
+                var vehicles = await VehicleService.GetVehiclesBySearch(model);
+
+                List<VehicleDTO> vehicleDTOs = new List<VehicleDTO>();
+                foreach (Vehicle v in vehicles)
+                {
+                    vehicleDTOs.Add(new VehicleDTO()
+                    {
+                        VehicleId = v.VehicleId,
+                        Additional = v.Additional,
+                        Baggage = v.Baggage,
+                        CarType = v.CarType,
+                        CostPerDay = v.CostPerDay,
+                        Doors = v.Doors,
+                        Fuel = v.Fuel,
+                        Name = v.Name,
+                        Passangers = v.Passangers,
+                        Transmission = v.Transmission,
+                        Rating = await VehicleService.GetVehicleRatingAsInteger(v.VehicleId)
+                    });
+                }
+
+                return Ok(vehicleDTOs);
+            }
 
             ModelState.AddModelError("", "Cannot retrieve user data.");
             return BadRequest(ModelState);
