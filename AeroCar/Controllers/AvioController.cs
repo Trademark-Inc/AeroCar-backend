@@ -2,6 +2,7 @@
 using System.Collections.Generic;
 using System.Linq;
 using System.Threading.Tasks;
+using AeroCar.Models;
 using AeroCar.Models.Avio;
 using AeroCar.Models.DTO.Avio;
 using AeroCar.Models.Rating;
@@ -20,11 +21,15 @@ namespace AeroCar.Controllers
     {
         public AvioService AvioService { get; set; }
 
-        public AvioController(AvioService avioSerivce)
+        public DestinationService DestinationService { get; set; }
+
+        public AvioController(AvioService avioSerivce, DestinationService destinationService)
         {
             AvioService = avioSerivce;
+            DestinationService = destinationService;
         }
 
+        [AllowAnonymous]
         [HttpGet]
         [Route("company/get")]
         public async Task<IActionResult> GetCompanyProfile()
@@ -70,6 +75,43 @@ namespace AeroCar.Controllers
                 return Ok(new { avioCompanyProfileDTOList });
             }
 
+            ModelState.AddModelError("", "Cannot retrieve user data.");
+            return BadRequest(ModelState);
+        }
+
+        [AllowAnonymous]
+        [HttpGet]
+        [Route("company/details/get/{id}")]
+        public async Task<IActionResult> GetCompanyDetails(long id)
+        {
+            AvioCompanyProfileDTO avioCompanyProfileDTO = new AvioCompanyProfileDTO();
+
+            if (ModelState.IsValid)
+            {
+                AvioCompany company = await AvioService.GetCompany(id);
+                AvioCompanyProfile companyProfile = new AvioCompanyProfile();
+                int avioCompanyRatingPicture = 0;
+                List<Destination> destinationList = company.Destinations;
+
+                string allDestinations = "";
+                for (int i = 0; i < destinationList.Count; i++)
+                {
+                    allDestinations += destinationList[i].Name + ",";
+                }
+
+                companyProfile = await AvioService.GetCompanyProfile(id);
+                avioCompanyRatingPicture = (int)(Math.Round(await AvioService.GetAverageCompanyRating(id)));
+
+                avioCompanyProfileDTO.Id = company.AvioCompanyId;
+                avioCompanyProfileDTO.Name = companyProfile.Name;
+                avioCompanyProfileDTO.RatingPicture = avioCompanyRatingPicture;
+                avioCompanyProfileDTO.Address = companyProfile.Address;
+                avioCompanyProfileDTO.Description = companyProfile.PromoDescription;
+                avioCompanyProfileDTO.Destinations = allDestinations;
+                avioCompanyProfileDTO.DestinationsList = destinationList;
+
+                return Ok(new { avioCompanyProfileDTO });
+            }
             ModelState.AddModelError("", "Cannot retrieve user data.");
             return BadRequest(ModelState);
         }

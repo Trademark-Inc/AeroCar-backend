@@ -20,5 +20,7 @@ namespace AeroCar.Models.DTO.Avio
         public string Destinations { get; set; }
 
         public string Description { get; set; }
+
+        public List<Destination> DestinationsList { get; set; }
     }
 }
