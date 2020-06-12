@@ -4,6 +4,7 @@ using AeroCar.Models.Rating;
 using AeroCar.Models.Reservation;
 using AeroCar.Repositories;
 using AeroCar.Utility;
+using Microsoft.EntityFrameworkCore.Metadata.Conventions;
 using System;
 using System.Collections.Generic;
 using System.Linq;
