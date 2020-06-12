@@ -17,7 +17,7 @@ namespace AeroCar.Models.Rating
 
         [ForeignKey("RegularUser.Id")]
         public string UserId { get; set; }
-
+        
         public string Comment { get; set; }
 
         public StarRating Rate { get; set; }

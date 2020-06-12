@@ -1,5 +1,6 @@
 ﻿using AeroCar.Models;
 using AeroCar.Models.DTO;
+using AeroCar.Models.Rating;
 using AeroCar.Models.Registration;
 using AeroCar.Models.Users;
 using AeroCar.Repositories;
@@ -228,6 +229,16 @@ namespace AeroCar.Services
             var invitation = await _userRepository.GetInvitation(invitationId);
 
             await _userRepository.RemoveInvitation(invitation);
+        }
+
+        public async Task AvioRating(AvioCompanyRating acr)
+        {
+            await _userRepository.AvioRating(acr);
+        }
+
+        public async Task FlightRating(FlightRating fr)
+        {
+            await _userRepository.FlightRating(fr);
         }
     }
 }

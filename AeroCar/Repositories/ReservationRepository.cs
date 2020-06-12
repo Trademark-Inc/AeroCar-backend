@@ -40,5 +40,15 @@ namespace AeroCar.Repositories
             _context.CarReservations.Remove(r);
             await _context.SaveChangesAsync();
         }
+
+        public async Task<FlightReservation> GetFlightReservationNameById(long id)
+        {
+            return await _context.FlightReservations.Include(fr => fr.PriceListItems).AsNoTracking().SingleOrDefaultAsync(fr => fr.FlightReservationId == id);
+        }
+
+        public async Task<CarReservation> GetCarReservationNameById(long id)
+        {
+            return await _context.CarReservations.Include(fr => fr.PickUpLocation).Include(fr=> fr.ReturnLocation).AsNoTracking().SingleOrDefaultAsync(fr => fr.CarReservationId == id);
+        }
     }
 }
