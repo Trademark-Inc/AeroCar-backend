@@ -38,5 +38,10 @@ namespace AeroCar.Repositories
             _context.Vehicles.Remove(v);
             await _context.SaveChangesAsync();
         }
+
+        public async Task<List<VehicleRating>> FlightRating()
+        {
+            return await _context.CarRatings.AsNoTracking().ToListAsync();
+        }
     }
 }

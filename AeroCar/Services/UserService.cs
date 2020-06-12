@@ -240,5 +240,15 @@ namespace AeroCar.Services
         {
             await _userRepository.AddFlightRating(fr);
         }
+
+        public async Task AddCarRating(CarCompanyRating acr)
+        {
+            await _userRepository.AddCarRating(acr);
+        }
+
+        public async Task AddVehicleRating(VehicleRating vr)
+        {
+            await _userRepository.AddVehicleRating(vr);
+        }
     }
 }
