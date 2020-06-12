@@ -728,16 +728,19 @@ namespace AeroCar.Controllers
                                             }
                                         }
 
-                                        carsHistory.Add(new CarHistoryDTO()
+                                        if (boolFind == false)
                                         {
-                                            ReservationId = cr.CarReservationId,
-                                            CarCompanyName = companyProfile.Name,
-                                            VehicleName = vehicle.Name,
-                                            PickUpDate = cr.PickUpDate,
-                                            ReturnDate = cr.ReturnDate,
-                                            PickUpLocation = cr.PickUpLocation.Name,
-                                            ReturnLocation = cr.ReturnLocation.Name
-                                        });
+                                            carsHistory.Add(new CarHistoryDTO()
+                                            {
+                                                ReservationId = cr.CarReservationId,
+                                                CarCompanyName = companyProfile.Name,
+                                                VehicleName = vehicle.Name,
+                                                PickUpDate = cr.PickUpDate,
+                                                ReturnDate = cr.ReturnDate,
+                                                PickUpLocation = cr.PickUpLocation.Name,
+                                                ReturnLocation = cr.ReturnLocation.Name
+                                            });
+                                        }
                                     }
                                 }
                             }

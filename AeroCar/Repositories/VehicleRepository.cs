@@ -39,7 +39,7 @@ namespace AeroCar.Repositories
             await _context.SaveChangesAsync();
         }
 
-        public async Task<List<VehicleRating>> FlightRating()
+        public async Task<List<VehicleRating>> VehicleRating()
         {
             return await _context.CarRatings.AsNoTracking().ToListAsync();
         }

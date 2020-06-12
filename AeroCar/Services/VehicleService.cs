@@ -128,7 +128,7 @@ namespace AeroCar.Services
 
         public async Task<List<VehicleRating>> VehicleRating()
         {
-            return await _repository.FlightRating();
+            return await _repository.VehicleRating();
         }
     }
 }
