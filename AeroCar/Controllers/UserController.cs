@@ -579,9 +579,9 @@ namespace AeroCar.Controllers
                 flightRate.Rate = model.ratingFlight;
                 flightRate.UserId = user.Id;
 
-                await _userService.AvioRating(acRate);
+                await _userService.AddAvioRating(acRate);
 
-                await _userService.FlightRating(flightRate);
+                await _userService.AddFlightRating(flightRate);
 
                 return Ok(200);
             }
@@ -590,7 +590,7 @@ namespace AeroCar.Controllers
 
         [HttpGet]
         [Route("history/flights/rating")]
-        public async Task<IActionResult> GetFlightsHistory()
+        public async Task<IActionResult> GetRating()
         {
             var user = await _userService.GetCurrentUser();
 
@@ -618,14 +618,29 @@ namespace AeroCar.Controllers
 
                                     if (companyProfile != null)
                                     {
-                                        flightsHistory.Add(new FlightHistoryDTO()
+                                        List<FlightRating> flightRat = await _flightService.FlightRating();
+
+                                        bool boolFind = false;
+
+                                        foreach (var flrt in flightRat)
                                         {
-                                            ReservationId = fr.FlightReservationId,
-                                            DepartureLocation = flight.DepartureLocation,
-                                            ArrivalLocation = flight.ArrivalLocation,
-                                            Departure = flight.Departure,
-                                            AvioCompanyName = companyProfile.Name
-                                        });
+                                            if (flrt.FlightId == flight.FlightId && user.Id == flrt.UserId)
+                                            {
+                                                boolFind = true;
+                                            }
+                                        }
+
+                                        if (boolFind == false)
+                                        {
+                                            flightsHistory.Add(new FlightHistoryDTO()
+                                            {
+                                                ReservationId = fr.FlightReservationId,
+                                                DepartureLocation = flight.DepartureLocation,
+                                                ArrivalLocation = flight.ArrivalLocation,
+                                                Departure = flight.Departure,
+                                                AvioCompanyName = companyProfile.Name
+                                            });
+                                        }
                                     }
                                 }
                             }

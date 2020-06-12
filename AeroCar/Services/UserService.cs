@@ -231,14 +231,14 @@ namespace AeroCar.Services
             await _userRepository.RemoveInvitation(invitation);
         }
 
-        public async Task AvioRating(AvioCompanyRating acr)
+        public async Task AddAvioRating(AvioCompanyRating acr)
         {
-            await _userRepository.AvioRating(acr);
+            await _userRepository.AddAvioRating(acr);
         }
 
-        public async Task FlightRating(FlightRating fr)
+        public async Task AddFlightRating(FlightRating fr)
         {
-            await _userRepository.FlightRating(fr);
+            await _userRepository.AddFlightRating(fr);
         }
     }
 }

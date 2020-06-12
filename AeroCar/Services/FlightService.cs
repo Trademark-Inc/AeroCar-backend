@@ -1,4 +1,5 @@
 ﻿using AeroCar.Models.Avio;
+using AeroCar.Models.Rating;
 using AeroCar.Repositories;
 using System;
 using System.Collections.Generic;
@@ -61,6 +62,11 @@ namespace AeroCar.Services
         public async Task RemoveFlight(Flight f)
         {
             await _repository.RemoveFlight(f);
+        }
+
+        public async Task<List<FlightRating>> FlightRating()
+        {
+            return await _repository.FlightRating();
         }
     }
 }

@@ -1,5 +1,6 @@
 ﻿using AeroCar.Models;
 using AeroCar.Models.Avio;
+using AeroCar.Models.Rating;
 using Microsoft.EntityFrameworkCore;
 using System;
 using System.Collections.Generic;
@@ -52,6 +53,11 @@ namespace AeroCar.Repositories
         {
             _context.Flights.Remove(f);
             await _context.SaveChangesAsync();
+        }
+
+        public async Task<List<FlightRating>> FlightRating()
+        {
+            return await _context.FlightRatings.AsNoTracking().ToListAsync();
         }
     }
 }
