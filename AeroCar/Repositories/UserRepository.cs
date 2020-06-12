@@ -1,4 +1,5 @@
 ﻿using AeroCar.Models;
+using AeroCar.Models.Rating;
 using AeroCar.Models.Registration;
 using AeroCar.Models.Users;
 using Microsoft.EntityFrameworkCore;
@@ -100,6 +101,18 @@ namespace AeroCar.Repositories
         public async Task<int> Count()
         {
             return await _context.Users.AsNoTracking().CountAsync();
+        }
+
+        public async Task AvioRating(AvioCompanyRating acr)
+        {
+            await _context.AvioCompanyRatings.AddAsync(acr);
+            await _context.SaveChangesAsync();
+        }
+
+        public async Task FlightRating(FlightRating fr)
+        {
+            await _context.FlightRatings.AddAsync(fr);
+            await _context.SaveChangesAsync();
         }
     }
 }

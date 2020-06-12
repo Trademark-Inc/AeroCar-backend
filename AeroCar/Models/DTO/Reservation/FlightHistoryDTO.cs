@@ -15,7 +15,6 @@ namespace AeroCar.Models.DTO.Reservation
 
         public DateTime Departure { get; set; }
 
-        public string AvioCompanyName { get; set;
-        }
+        public string AvioCompanyName { get; set; }
     }
 }

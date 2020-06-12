@@ -55,5 +55,15 @@ namespace AeroCar.Services
         {
             await _repository.RemoveCarReservation(r);
         }
+
+        public async Task<FlightReservation> GetFlightReservationById(long id)
+        {
+            return await _repository.GetFlightReservationNameById(id);
+        }
+
+        public async Task<CarReservation> GetCarReservationById(long id)
+        {
+            return await _repository.GetCarReservationNameById(id);
+        }
     }
 }
