@@ -174,12 +174,19 @@ namespace AeroCar.Services
         public async Task AddFriend(RegularUser user, string friendUsername)
         {
             var friend = await GetUserByUsername(friendUsername);
-            var friends = await GetUserFriends(user.Id);
 
-            var exists = friends.SingleOrDefault(f => f.FriendId == friend.Id) != null;
-            if (exists) return;
+            if (friend != null)
+            {
+                var friends = await GetUserFriends(user.Id);
 
-            await _userRepository.AddFriend(new Friend() { FriendId = friend.Id, UserId = user.Id });
+                if (friends != null)
+                {
+                    var exists = friends.SingleOrDefault(f => f.FriendId == friend.Id) != null;
+                    if (exists) return;
+
+                    await _userRepository.AddFriend(new Friend() { FriendId = friend.Id, UserId = user.Id });
+                }
+            }
         }
 
         public async Task RemoveFriend(RegularUser user, string friendUsername)
