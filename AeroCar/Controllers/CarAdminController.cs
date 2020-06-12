@@ -52,7 +52,11 @@ namespace AeroCar.Controllers
 
                         return Ok(new { carCompany, carCompanyProfile });
                     }
+
+                    return BadRequest("Car company not found.");
                 }
+
+                return Unauthorized("You must log in as an administrator of this company.");
             }
 
             ModelState.AddModelError("", "Cannot retrieve user data.");
@@ -79,7 +83,11 @@ namespace AeroCar.Controllers
 
                         return Ok(new { companyRating, graph });
                     }
+
+                    return BadRequest("Car company not found.");
                 }
+
+                return Unauthorized("You must log in as an administrator of this company.");
             }
 
             ModelState.AddModelError("", "Cannot retrieve user data.");
@@ -110,7 +118,11 @@ namespace AeroCar.Controllers
                         await RentACarService.UpdateCompanyProfile(carCompanyProfile);
                         return Ok(200);
                     }
+
+                    return BadRequest("Car company not found.");
                 }
+
+                return Unauthorized("You must log in as an administrator of this company.");
             }
 
             return BadRequest("Not enough data provided.");
@@ -155,7 +167,11 @@ namespace AeroCar.Controllers
 
                         return Ok(vehicleDTOs);
                     }
+
+                    return BadRequest("Car company not found.");
                 }
+
+                return Unauthorized("You must log in as an administrator of this company.");
             }
 
             ModelState.AddModelError("", "Cannot retrieve user data.");
@@ -225,6 +241,8 @@ namespace AeroCar.Controllers
 
                             return Ok(200);
                         }
+
+                        return NotFound("Vehicle not found.");
                     }
                     else return BadRequest("Company wasn't found.");
                 }
@@ -270,7 +288,10 @@ namespace AeroCar.Controllers
 
                         return Ok(officeDTOs);
                     }
+                    return BadRequest("Car company not found.");
                 }
+
+                return Unauthorized("You must log in as an administrator of this company.");
             }
 
             ModelState.AddModelError("", "Cannot retrieve user data.");
@@ -304,7 +325,10 @@ namespace AeroCar.Controllers
 
                         return Ok(200);
                     }
+                    return BadRequest("Car company not found.");
                 }
+
+                return Unauthorized("You must log in as an administrator of this company.");
             }
 
             return BadRequest("Not enough data provided.");
@@ -333,8 +357,10 @@ namespace AeroCar.Controllers
 
                             return Ok(200);
                         }
+
+                        return NotFound("Office wasn't found.");
                     }
-                    else return BadRequest("Company wasn't found.");
+                    else return BadRequest("Car company wasn't found.");
                 }
             }
 

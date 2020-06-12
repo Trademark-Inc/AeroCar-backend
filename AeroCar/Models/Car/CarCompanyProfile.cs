@@ -12,10 +12,13 @@ namespace AeroCar.Models.Car
         [Key]
         public long CarCompanyProfileId { get; set; }
 
+        [Required]
         public string Name { get; set; }
 
+        [Required]
         public string Address { get; set; }
 
+        [Required]
         public string PromoDescription { get; set; }
     }
 }

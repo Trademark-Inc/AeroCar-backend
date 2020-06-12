@@ -95,7 +95,7 @@ namespace AeroCar.Controllers
             {
                 if (await AvioService.CompanyExists(avioCompanyDTO.Name))
                 {
-                    return BadRequest("Company already exists!");
+                    return BadRequest("Company already exists with the same name.");
                 }
 
                 var profile = new AvioCompanyProfile()
@@ -126,7 +126,7 @@ namespace AeroCar.Controllers
                 else return BadRequest("Company wasn't found.");
             }
 
-            return BadRequest("No sufficient data provided.");
+            return BadRequest("No ID provided.");
         }
         #endregion
 
@@ -163,7 +163,7 @@ namespace AeroCar.Controllers
             {
                 if (await RentACarService.CompanyExists(carCompanyDTO.Name))
                 {
-                    return BadRequest("Company already exists!");
+                    return BadRequest("Company already exists.");
                 }
 
                 var profile = new CarCompanyProfile()
@@ -266,17 +266,17 @@ namespace AeroCar.Controllers
             {
                 if (await AvioAdminService.AdminExists(adminDTO.Username))
                 {
-                    return BadRequest("Admin already exists with that username!");
+                    return BadRequest("Admin already exists with that username.");
                 }
 
                 if (await CarAdminService.AdminExists(adminDTO.Username))
                 {
-                    return BadRequest("Admin already exists with that username!");
+                    return BadRequest("Admin already exists with that username.");
                 }
 
                 if (adminDTO.Password != adminDTO.ConfirmPassword)
                 {
-                    return BadRequest("Password and confirmation password don't match!");
+                    return BadRequest("Password and confirmation password don't match.");
                 }
 
                 RegularUser user = new RegularUser()
@@ -307,12 +307,12 @@ namespace AeroCar.Controllers
                         }
                         else
                         {
-                            return BadRequest("Avio company not found!");
+                            return BadRequest("Avio company not found.");
                         }
                     }
                 }
 
-                return BadRequest("Admin already exists!");
+                return BadRequest("Admin already exists.");
             }
 
             return BadRequest("No sufficient data provided.");
