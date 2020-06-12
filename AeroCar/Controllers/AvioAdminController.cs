@@ -137,6 +137,10 @@ namespace AeroCar.Controllers
         {
             if (ModelState.IsValid)
             {
+                if (model.Departure > model.Arrival) return BadRequest("Departure cannot be before landing.");
+
+                if (model.Departure < DateTime.Now) return BadRequest("Departure cannot be before today's date.");
+
                 var user = await AvioAdminService.GetCurrentUser();
 
                 if (user != null)

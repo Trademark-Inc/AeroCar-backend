@@ -66,6 +66,11 @@ namespace AeroCar.Controllers
                     return BadRequest("Arrival date can't be before than departure date.");
                 }
 
+                if (model.Departure < DateTime.Now)
+                {
+                    return BadRequest("Departure cannot be before today's date.");
+                }
+
                 if (model.Ticket == Models.FlightType.OneWay)
                 {
                     var peopleCount = model.Adults + model.Children + model.Infants;

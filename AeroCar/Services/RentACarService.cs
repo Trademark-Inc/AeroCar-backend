@@ -81,7 +81,7 @@ namespace AeroCar.Services
 
             List<GraphDTO> months = new List<GraphDTO>();
             var lastMonths = Enumerable.Range(0, numberOfMonths)
-                              .Select(i => DateTime.Now.AddMonths(i - numberOfMonths))
+                              .Select(i => DateTime.Now.AddMonths(i - numberOfMonths + 1))
                               .Select(date => date.ToString("MM/yyyy"));
 
             var lastMonthsList = lastMonths.ToList();
