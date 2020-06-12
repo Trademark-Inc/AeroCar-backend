@@ -131,14 +131,14 @@ namespace AeroCar.Models
                     var seatsA380 = new Seats()
                     {
                         AeroplaneId = aeroplaneA380.AeroplaneId,
-                        SeatCount = 200,
+                        SeatCount = 240,
                         InOneRow = 6
                     };
 
                     var seats737 = new Seats()
                     {
                         AeroplaneId = aeroplane737.AeroplaneId,
-                        SeatCount = 300,
+                        SeatCount = 320,
                         InOneRow = 8
                     };
 

@@ -50,6 +50,18 @@ namespace AeroCar.Services
         {
             List<Vehicle> retVal = new List<Vehicle>();
 
+            if (searchParameters.PickUpDate < DateTime.Now) return retVal;
+
+            if (searchParameters.PickUpDate > searchParameters.ReturnDate) return retVal;
+
+            if (searchParameters.PickUpDate == searchParameters.ReturnDate)
+            {
+                if (searchParameters.PickUpTime >= searchParameters.ReturnTime)
+                {
+                    return retVal;
+                }
+            }
+
             var vehicles = await _repository.GetAllVehicles();
             foreach (Vehicle v in vehicles)
             {
