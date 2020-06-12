@@ -9,6 +9,7 @@ using System.Text;
 using System.Threading.Tasks;
 using AeroCar.Models;
 using AeroCar.Models.Avio;
+using AeroCar.Models.Car;
 using AeroCar.Models.DTO;
 using AeroCar.Models.DTO.Avio;
 using AeroCar.Models.DTO.Rate;
@@ -560,8 +561,8 @@ namespace AeroCar.Controllers
         }
 
         [HttpPost]
-        [Route("rate/{id}")]
-        public async Task<IActionResult> PostRate(long id, [FromBody]AvioFlightRatingDTO model)
+        [Route("rate/flight/{id}")]
+        public async Task<IActionResult> PostAvioRate(long id, [FromBody]AvioFlightRatingDTO model)
         {
             if (ModelState.IsValid)
             {
@@ -588,9 +589,38 @@ namespace AeroCar.Controllers
             return BadRequest();
         }
 
+        [HttpPost]
+        [Route("rate/vehicle/{id}")]
+        public async Task<IActionResult> PostCarRate(long id, [FromBody]CarVehicleRatingDTO model)
+        {
+            if (ModelState.IsValid)
+            {
+                CarReservation vehicleReser = await _reservationService.GetCarReservationById(id);
+                Vehicle vehicle = await _vehicleService.GetVehicleById(vehicleReser.VehicleId);
+                RegularUser user = await _userService.GetCurrentUser();
+
+                CarCompanyRating ccRate = new CarCompanyRating();
+                ccRate.CarCompanyId = vehicle.CarCompanyId;
+                ccRate.UserId = user.Id;
+                ccRate.Rate = model.ratingCarCompany;
+
+                VehicleRating vehicleRate = new VehicleRating();
+                vehicleRate.VehicleId = vehicle.VehicleId;
+                vehicleRate.Rate = model.ratingVehicle;
+                vehicleRate.UserId = user.Id;
+
+                await _userService.AddCarRating(ccRate);
+
+                await _userService.AddVehicleRating(vehicleRate);
+
+                return Ok(200);
+            }
+            return BadRequest();
+        }
+
         [HttpGet]
         [Route("history/flights/rating")]
-        public async Task<IActionResult> GetRating()
+        public async Task<IActionResult> GetAvioRating()
         {
             var user = await _userService.GetCurrentUser();
 
@@ -618,13 +648,13 @@ namespace AeroCar.Controllers
 
                                     if (companyProfile != null)
                                     {
-                                        List<FlightRating> flightRat = await _flightService.FlightRating();
+                                        List<FlightRating> flightRa = await _flightService.FlightRating();
 
                                         bool boolFind = false;
 
-                                        foreach (var flrt in flightRat)
+                                        foreach (var flR in flightRa)
                                         {
-                                            if (flrt.FlightId == flight.FlightId && user.Id == flrt.UserId)
+                                            if (flR.FlightId == flight.FlightId && user.Id == flR.UserId)
                                             {
                                                 boolFind = true;
                                             }
@@ -651,6 +681,73 @@ namespace AeroCar.Controllers
                 }
 
                 return BadRequest("No reservations found!");
+            }
+
+            return BadRequest("User not found.");
+        }
+
+        [HttpGet]
+        [Route("history/vehicles/rating")]
+        public async Task<IActionResult> GetCarRating()
+        {
+            var user = await _userService.GetCurrentUser();
+
+            if (user != null)
+            {
+                var reservations = user.ReservedCars;
+
+                if (reservations != null)
+                {
+                    List<CarHistoryDTO> carsHistory = new List<CarHistoryDTO>();
+
+                    foreach (CarReservation cr in reservations)
+                    {
+                        if (DateTime.Now > (cr.PickUpDate.AddDays(-2)))
+                        {
+                            var vehicle = await _vehicleService.GetVehicleById(cr.VehicleId);
+
+                            if (vehicle != null)
+                            {
+                                var company = await _rentACarService.GetCompany(vehicle.CarCompanyId);
+
+                                if (company != null)
+                                {
+                                    var companyProfile = await _rentACarService.GetCompanyProfile(company.CarCompanyProfileId);
+
+                                    if (companyProfile != null)
+                                    {
+                                        List<VehicleRating> vehicleR = await _vehicleService.VehicleRating();
+
+                                        bool boolFind = false;
+
+                                        foreach (var veR in vehicleR)
+                                        {
+                                            if (veR.VehicleId == vehicle.VehicleId && user.Id == veR.UserId)
+                                            {
+                                                boolFind = true;
+                                            }
+                                        }
+
+                                        carsHistory.Add(new CarHistoryDTO()
+                                        {
+                                            ReservationId = cr.CarReservationId,
+                                            CarCompanyName = companyProfile.Name,
+                                            VehicleName = vehicle.Name,
+                                            PickUpDate = cr.PickUpDate,
+                                            ReturnDate = cr.ReturnDate,
+                                            PickUpLocation = cr.PickUpLocation.Name,
+                                            ReturnLocation = cr.ReturnLocation.Name
+                                        });
+                                    }
+                                }
+                            }
+                        }
+                    }
+
+                    return Ok(new { carsHistory });
+                }
+
+                return BadRequest("No car reservations found!");
             }
 
             return BadRequest("User not found.");

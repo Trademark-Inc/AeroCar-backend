@@ -7,5 +7,8 @@ namespace AeroCar.Models.DTO.Rate
 {
     public class CarVehicleRatingDTO
     {
+        public StarRating ratingCarCompany { get; set; }
+
+        public StarRating ratingVehicle { get; set; }
     }
 }

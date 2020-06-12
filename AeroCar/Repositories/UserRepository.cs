@@ -114,5 +114,17 @@ namespace AeroCar.Repositories
             await _context.FlightRatings.AddAsync(fr);
             await _context.SaveChangesAsync();
         }
+
+        public async Task AddCarRating(CarCompanyRating ccr)
+        {
+            await _context.CarCompanyRatings.AddAsync(ccr);
+            await _context.SaveChangesAsync();
+        }
+
+        public async Task AddVehicleRating(VehicleRating vr)
+        {
+            await _context.CarRatings.AddAsync(vr);
+            await _context.SaveChangesAsync();
+        }
     }
 }
