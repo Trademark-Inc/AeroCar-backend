@@ -572,11 +572,13 @@ namespace AeroCar.Controllers
 
                 AvioCompanyRating acRate = new AvioCompanyRating();
                 acRate.AvioCompanyId = flight.AvioCompanyId;
+                acRate.FlightReservationId = id;
                 acRate.UserId = user.Id;
                 acRate.Rate = model.ratingAvioCompany;
 
                 FlightRating flightRate = new FlightRating();
                 flightRate.FlightId = flight.FlightId;
+                flightRate.FlightReservationId = id;
                 flightRate.Rate = model.ratingFlight;
                 flightRate.UserId = user.Id;
 
@@ -600,11 +602,13 @@ namespace AeroCar.Controllers
                 RegularUser user = await _userService.GetCurrentUser();
 
                 CarCompanyRating ccRate = new CarCompanyRating();
+                ccRate.CarReservationId = id;
                 ccRate.CarCompanyId = vehicle.CarCompanyId;
                 ccRate.UserId = user.Id;
                 ccRate.Rate = model.ratingCarCompany;
 
                 VehicleRating vehicleRate = new VehicleRating();
+                vehicleRate.CarReservationId = id;
                 vehicleRate.VehicleId = vehicle.VehicleId;
                 vehicleRate.Rate = model.ratingVehicle;
                 vehicleRate.UserId = user.Id;
@@ -654,7 +658,7 @@ namespace AeroCar.Controllers
 
                                         foreach (var flR in flightRa)
                                         {
-                                            if (flR.FlightId == flight.FlightId && user.Id == flR.UserId)
+                                            if (flR.FlightReservationId == fr.FlightReservationId && user.Id == flR.UserId)
                                             {
                                                 boolFind = true;
                                             }
@@ -722,7 +726,7 @@ namespace AeroCar.Controllers
 
                                         foreach (var veR in vehicleR)
                                         {
-                                            if (veR.VehicleId == vehicle.VehicleId && user.Id == veR.UserId)
+                                            if (veR.CarReservationId == cr.CarReservationId && user.Id == veR.UserId)
                                             {
                                                 boolFind = true;
                                             }

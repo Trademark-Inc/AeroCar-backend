@@ -12,6 +12,9 @@ namespace AeroCar.Models.Rating
         [Key]
         public long RatingId { get; set; }
 
+        [ForeignKey("FlightReservation.FlightReservationId")]
+        public long FlightReservationId { get; set; }
+
         [ForeignKey("AvioCompany.AvioCompanyId")]
         public long AvioCompanyId { get; set; }
 

@@ -3,14 +3,16 @@ using System;
 using AeroCar.Models;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore.Infrastructure;
+using Microsoft.EntityFrameworkCore.Migrations;
 using Microsoft.EntityFrameworkCore.Storage.ValueConversion;
 
 namespace AeroCar.Migrations
 {
     [DbContext(typeof(ApplicationDbContext))]
-    partial class ApplicationDbContextModelSnapshot : ModelSnapshot
+    [Migration("20200612223331_avio rating update")]
+    partial class avioratingupdate
     {
-        protected override void BuildModel(ModelBuilder modelBuilder)
+        protected override void BuildTargetModel(ModelBuilder modelBuilder)
         {
 #pragma warning disable 612, 618
             modelBuilder
@@ -393,9 +395,6 @@ namespace AeroCar.Migrations
                     b.Property<long>("CarCompanyId")
                         .HasColumnType("bigint");
 
-                    b.Property<long>("CarReservationId")
-                        .HasColumnType("bigint");
-
                     b.Property<string>("Comment")
                         .HasColumnType("longtext CHARACTER SET utf8mb4");
 
@@ -440,9 +439,6 @@ namespace AeroCar.Migrations
                 {
                     b.Property<long>("RatingId")
                         .ValueGeneratedOnAdd()
-                        .HasColumnType("bigint");
-
-                    b.Property<long>("CarReservationId")
                         .HasColumnType("bigint");
 
                     b.Property<string>("Comment")
